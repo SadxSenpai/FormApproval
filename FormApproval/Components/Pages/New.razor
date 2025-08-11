@@ -1,0 +1,102 @@
+﻿@page "/new"
+@inject FormApproval.Services.IFormRepository Repo
+@inject FormApproval.Services.ICurrentUser Me
+@inject NavigationManager Nav
+
+<h3>New Leave Request</h3>
+
+<EditForm Model="@vm">
+    <div class="mb-2">
+        <label class="form-label">Full Name</label>
+        <InputText class="form-control" @bind-Value="vm.FullName" disabled />
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Email</label>
+        <InputText class="form-control" @bind-Value="vm.Email" disabled />
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label">Department</label>
+        <InputText class="form-control" @bind-Value="vm.Department" disabled />
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label class="form-label">From</label>
+            <InputDate class="form-control" @bind-Value="vm.From" />
+        </div>
+        <div class="col">
+            <label class="form-label">To</label>
+            <InputDate class="form-control" @bind-Value="vm.To" />
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <label class="form-label">Reason</label>
+        <InputTextArea class="form-control" @bind-Value="vm.Reason" />
+    </div>
+
+    <div class="mt-3">
+        <button class="btn btn-secondary" type="button" @onclick="SaveDraft">Save Draft</button>
+        <button class="btn btn-primary" type="button" @onclick="Submit">Submit</button>
+    </div>
+</EditForm>
+
+@code {
+    private NewVm vm = new();
+
+    protected override void OnInitialized()
+    {
+        vm.FullName = Me.Name;
+        vm.Email = Me.Email;
+        vm.Department = Me.Department;
+    }
+
+    private void SaveDraft()
+    {
+        var inst = ToInstance();
+        Repo.CreateDraft(inst);
+        Nav.NavigateTo($"/form/{inst.Id}");
+    }
+
+    private void Submit()
+    {
+        var inst = ToInstance();
+        inst.Status = FormApproval.Domain.FormStatus.Submitted;
+        inst.SubmittedAt = DateTime.UtcNow;
+        inst.Audit.Add(new() { Actor = Me.Name, Action = "Submit" });
+        Repo.CreateDraft(inst);
+        Nav.NavigateTo($"/form/{inst.Id}");
+    }
+
+    private FormApproval.Domain.FormInstance ToInstance()
+    {
+        var inst = new FormApproval.Domain.FormInstance {
+            TemplateId = Repo.GetDefaultTemplate().Id,
+            OwnerUserId = Me.UserId,
+            OwnerName = Me.Name,
+            OwnerEmail = Me.Email,
+            Department = Me.Department,
+            Answers = new() {
+                ["FullName"]   = vm.FullName,
+                ["Email"]      = vm.Email,
+                ["Department"] = vm.Department,
+                ["FromDate"]   = vm.From?.ToString("yyyy-MM-dd"),
+                ["ToDate"]     = vm.To?.ToString("yyyy-MM-dd"),
+                ["Reason"]     = vm.Reason
+            }
+        };
+        inst.Audit.Add(new() { Actor = Me.Name, Action = "Create" });
+        return inst;
+    }
+
+    public class NewVm {
+        public string? FullName { get; set; }
+        public string? Email { get; set; }
+        public string? Department { get; set; }
+        public DateTime? From { get; set; }
+        public DateTime? To { get; set; }
+        public string? Reason { get; set; }
+    }
+}

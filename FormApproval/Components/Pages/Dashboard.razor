@@ -1,0 +1,38 @@
+﻿@page "/dashboard"
+@inject FormApproval.Services.IFormRepository Repo
+@inject FormApproval.Services.ICurrentUser Me
+
+<h3>Dashboard</h3>
+
+<h4>My Submissions</h4>
+<table class="table table-sm">
+    <thead><tr><th>Status</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var f in Repo.GetMine(Me.UserId))
+    {
+        <tr>
+            <td>@f.Status</td>
+            <td>@f.CreatedAt.ToLocalTime()</td>
+            <td><a class="btn btn-link" href="/form/@f.Id">Open</a></td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (Me.IsApprover)
+{
+    <h4>My Approvals</h4>
+    <table class="table table-sm">
+        <thead><tr><th>Owner</th><th>Dates</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var f in Repo.GetApproverQueue(Me.IsApprover))
+        {
+            <tr>
+                <td>@f.OwnerName</td>
+                <td>@(f.Answers.GetValueOrDefault("FromDate")) – @(f.Answers.GetValueOrDefault("ToDate"))</td>
+                <td><a class="btn btn-link" href="/form/@f.Id">Review</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

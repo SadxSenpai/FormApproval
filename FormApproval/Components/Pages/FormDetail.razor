@@ -1,0 +1,63 @@
+﻿@page "/form/{Id:guid}"
+@inject FormApproval.Services.IFormRepository Repo
+@inject FormApproval.Services.ICurrentUser Me
+@inject NavigationManager Nav
+
+@if (item is null)
+{
+    <p>Not found.</p>
+}
+else
+{
+    <h3>Request by @item.OwnerName</h3>
+    <p><b>Status:</b> @item.Status</p>
+    <p><b>From:</b> @item.Answers.GetValueOrDefault("FromDate")</p>
+    <p><b>To:</b> @item.Answers.GetValueOrDefault("ToDate")</p>
+    <p><b>Reason:</b> @item.Answers.GetValueOrDefault("Reason")</p>
+
+    @if (Me.IsApprover && item.Status == FormApproval.Domain.FormStatus.Submitted)
+    {
+        <textarea class="form-control" @bind="decisionComment" placeholder="Optional comment"></textarea>
+        <div class="mt-2">
+            <button class="btn btn-success me-2" @onclick="Approve">Approve</button>
+            <button class="btn btn-danger" @onclick="Reject">Reject</button>
+        </div>
+    }
+
+    <h5 class="mt-4">Timeline</h5>
+    <ul>
+        @foreach (var a in item.Audit.OrderBy(a => a.At))
+        {
+            <li><b>@a.At.ToLocalTime()</b> — @a.Actor: @a.Action @if(!string.IsNullOrWhiteSpace(a.Comment)){
+            <text>(@a.Comment)</text>
+        }
+    </li>
+    }
+</ul>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private FormApproval.Domain.FormInstance? item;
+    private string? decisionComment;
+
+    protected override void OnParametersSet() => item = Repo.Get(Id);
+
+    private void Approve()
+    {
+        if (item is null) return;
+        item.Status = FormApproval.Domain.FormStatus.Approved;
+        item.Audit.Add(new() { Actor = Me.Name, Action = "Approve", Comment = decisionComment });
+        Repo.Save(item);
+        Nav.NavigateTo("/dashboard", true);
+    }
+
+    private void Reject()
+    {
+        if (item is null) return;
+        item.Status = FormApproval.Domain.FormStatus.Rejected;
+        item.Audit.Add(new() { Actor = Me.Name, Action = "Reject", Comment = decisionComment });
+        Repo.Save(item);
+        Nav.NavigateTo("/dashboard", true);
+    }
+}
