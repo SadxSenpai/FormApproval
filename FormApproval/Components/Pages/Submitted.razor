@@ -1,0 +1,18 @@
+﻿@page "/submitted"
+@inject NavigationManager Nav
+
+<h3>Submitted</h3>
+
+<div class="alert alert-success mt-4" role="alert">
+    <h4 class="alert-heading">Request Submitted!</h4>
+    <p>Your leave request has been submitted successfully.</p>
+    <hr />
+    <button class="btn btn-primary" @onclick="GoToDashboard">Go to Dashboard</button>
+</div>
+
+@code {
+    private void GoToDashboard()
+    {
+        Nav.NavigateTo("/dashboard");
+    }
+}

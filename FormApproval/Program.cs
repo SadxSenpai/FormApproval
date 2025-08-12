@@ -1,4 +1,5 @@
 ﻿using FormApproval.Services;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<IFormRepository, InMemoryFormRepository>();
 builder.Services.AddSingleton<CurrentUserStub>();
 builder.Services.AddSingleton<ICurrentUser>(sp => sp.GetRequiredService<CurrentUserStub>());
+builder.Services.AddSingleton<FormServices>();
 
 var app = builder.Build();
 
