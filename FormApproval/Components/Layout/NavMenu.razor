@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject FormApproval.Services.CurrentUserStub UserStub
+@inject NavigationManager Nav
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">FormApproval</a>
     </div>
@@ -20,5 +23,19 @@
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> New Request
             </NavLink>
         </div>
+
+        <div class="nav-item px-3">
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleRole">
+                @(UserStub.IsApprover ? "Switch to Submitter" : "Switch to Approver")
+            </button>
+        </div>
     </nav>
 </div>
+
+@code {
+    private void ToggleRole()
+    {
+        UserStub.IsApprover = !UserStub.IsApprover;
+        Nav.NavigateTo("/dashboard", true); // refresh to update UI/queues
+    }
+}

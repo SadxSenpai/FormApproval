@@ -2,7 +2,7 @@
 
 public class CurrentUserStub : ICurrentUser
 {
-    public bool IsApprover { get; set; } = false; // flip for testing
+    public bool IsApprover { get; set; } = true; // set true to see approver UI by default
     public string UserId => IsApprover ? "approver-1" : "user-1";
     public string Name => IsApprover ? "Alex Approver" : "Sam Submitter";
     public string Email => IsApprover ? "alex.approver@demo" : "sam.submitter@demo";

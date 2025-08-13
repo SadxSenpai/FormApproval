@@ -23,16 +23,54 @@
 {
     <h4>My Approvals</h4>
     <table class="table table-sm">
-        <thead><tr><th>Owner</th><th>Dates</th><th></th></tr></thead>
+        <thead>
+            <tr>
+                <th>Submitter</th>
+                <th>Dates</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
         <tbody>
         @foreach (var f in Repo.GetApproverQueue(Me.IsApprover))
         {
             <tr>
                 <td>@f.OwnerName</td>
                 <td>@(f.Answers.GetValueOrDefault("FromDate")) – @(f.Answers.GetValueOrDefault("ToDate"))</td>
-                <td><a class="btn btn-link" href="/form/@f.Id">Review</a></td>
+                <td>
+                    <a class="btn btn-link me-2" href="/form/@f.Id">Review</a>
+                    <button class="btn btn-success btn-sm me-2" @onclick="() => Approve(f.Id)">Approve</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => Reject(f.Id)">Reject</button>
+                </td>
             </tr>
         }
         </tbody>
     </table>
+}
+
+@code {
+    private void Approve(Guid id)
+    {
+        if (!Me.IsApprover) return;
+        var item = Repo.Get(id);
+        if (item is null || item.Status != FormApproval.Domain.FormStatus.Submitted) return;
+
+        item.Status = FormApproval.Domain.FormStatus.Approved;
+        item.Audit.Add(new() { Actor = Me.Name, Action = "Approve" });
+        Repo.Save(item);
+
+        StateHasChanged();
+    }
+
+    private void Reject(Guid id)
+    {
+        if (!Me.IsApprover) return;
+        var item = Repo.Get(id);
+        if (item is null || item.Status != FormApproval.Domain.FormStatus.Submitted) return;
+
+        item.Status = FormApproval.Domain.FormStatus.Rejected;
+        item.Audit.Add(new() { Actor = Me.Name, Action = "Reject" });
+        Repo.Save(item);
+
+        StateHasChanged();
+    }
 }
