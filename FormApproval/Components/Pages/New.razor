@@ -1,28 +1,34 @@
 ﻿@page "/new"
+@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 @inject FormApproval.Services.IFormRepository Repo
 @inject FormApproval.Services.ICurrentUser Me
 @inject NavigationManager Nav
+@inject ILogger<New> Logger
 
 <h3>New Leave Request</h3>
 
-<EditForm Model="@vm" OnValidSubmit="HandleSubmit">
+<EditForm Model="@vm"
+          OnValidSubmit="HandleSubmit"
+          OnInvalidSubmit="HandleInvalidSubmit"
+          FormName="NewLeaveRequestForm">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="mb-2">
         <label class="form-label">Full Name</label>
-        <InputText class="form-control" @bind-Value="vm.FullName" disabled />
+        <InputText class="form-control" @bind-Value="vm.FullName" readonly />
     </div>
 
     <div class="mb-2">
         <label class="form-label">Email</label>
-        <InputText class="form-control" @bind-Value="vm.Email" disabled />
+        <InputText class="form-control" @bind-Value="vm.Email" readonly />
     </div>
 
     <div class="mb-2">
         <label class="form-label">Department</label>
-        <InputText class="form-control" @bind-Value="vm.Department" disabled />
+        <InputText class="form-control" @bind-Value="vm.Department" readonly />
     </div>
 
     <div class="row">
@@ -48,10 +54,22 @@
         <button class="btn btn-secondary" type="button" @onclick="SaveDraft">Save Draft</button>
         <button class="btn btn-primary" type="submit">Submit</button>
     </div>
+
+    @if (!string.IsNullOrEmpty(dateError))
+    {
+        <div class="validation-message">@dateError</div>
+    }
+
+    <div>
+        <b>From:</b> @vm.From<br />
+        <b>To:</b> @vm.To<br />
+        <b>Reason:</b> @vm.Reason
+    </div>
 </EditForm>
 
 @code {
     private NewVm vm = new();
+    private string? dateError;
 
     protected override void OnInitialized()
     {
@@ -63,18 +81,19 @@
     private void SaveDraft()
     {
         var inst = ToInstance();
-        // Keep as Draft (default)
         Repo.CreateDraft(inst);
         Nav.NavigateTo($"/form/{inst.Id}");
     }
 
-    // Called when the form is valid and the user clicks Submit
     private void HandleSubmit()
     {
-        // Optional simple check: ensure To >= From
+        dateError = null;
+        Logger.LogInformation("HandleSubmit called. From={From}, To={To}, Reason='{Reason}'", vm.From, vm.To, vm.Reason);
+
         if (vm.From.HasValue && vm.To.HasValue && vm.To.Value < vm.From.Value)
         {
-            // basic UX: just stay on page; you can add a nicer message later
+            dateError = "'To' date cannot be before 'From' date.";
+            Logger.LogWarning("Validation: To < From (From={From}, To={To})", vm.From, vm.To);
             return;
         }
 
@@ -83,8 +102,17 @@
         inst.SubmittedAt = DateTime.UtcNow;
         inst.Audit.Add(new() { Actor = Me.Name, Action = "Submit" });
 
+        Logger.LogInformation("Submitting instance {Id} for {Owner} ({Email})", inst.Id, inst.OwnerName, inst.OwnerEmail);
         Repo.CreateDraft(inst);
-        Nav.NavigateTo($"/form/{inst.Id}");
+
+        Nav.NavigateTo("/submitted");
+    }
+
+    private void HandleInvalidSubmit(EditContext editContext)
+    {
+        var messages = string.Join(" | ", editContext.GetValidationMessages());
+        Logger.LogWarning("OnInvalidSubmit. From={From}, To={To}, Reason='{Reason}'. Errors: {Errors}",
+            vm.From, vm.To, vm.Reason, string.IsNullOrWhiteSpace(messages) ? "(none)" : messages);
     }
 
     private FormApproval.Domain.FormInstance ToInstance()
