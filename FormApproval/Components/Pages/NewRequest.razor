@@ -14,7 +14,14 @@
             <div class="fw-bold">@t.Name</div>
             <small class="text-muted">Template ID: @t.Id</small>
         </div>
-        <button class="btn btn-primary btn-sm" @onclick="@( () => Nav.NavigateTo($"/new/{t.Id}") )">Open</button>
+        <button class="btn btn-primary btn-sm" @onclick="() => OpenTemplate(t.Id)">Open</button>
     </li>
 }
 </ul>
+
+@code {
+    private void OpenTemplate(Guid id)
+    {
+        Nav.NavigateTo($"/new/{id}");
+    }
+}

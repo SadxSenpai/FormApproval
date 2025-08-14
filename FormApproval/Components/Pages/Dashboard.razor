@@ -1,10 +1,4 @@
 ﻿@page "/dashboard"
-@* 
-    Dashboard:
-    - "My Submissions": all requests owned by the current user (any status).
-    - "My Approvals": visible only if Me.IsApprover and lists Submitted items.
-      Includes inline Approve/Reject buttons that update status and audit.
-*@
 @inject FormApproval.Services.IFormRepository Repo
 @inject FormApproval.Services.ICurrentUser Me
 
@@ -39,13 +33,25 @@
         <tbody>
         @foreach (var f in Repo.GetApproverQueue(Me.IsApprover))
         {
+            var fromDate = f.Answers.GetValueOrDefault("FromDate");
+            var toDate = f.Answers.GetValueOrDefault("ToDate");
+            var day = f.Answers.GetValueOrDefault("Date");
+            var total = f.Answers.GetValueOrDefault("TotalHours");
+
             <tr>
                 <td>@f.OwnerName</td>
-                <td>@(f.Answers.GetValueOrDefault("FromDate")) – @(f.Answers.GetValueOrDefault("ToDate"))</td>
                 <td>
-                    @* Review opens the detail page with comment and timeline *@
+                    @if (!string.IsNullOrEmpty(fromDate) || !string.IsNullOrEmpty(toDate))
+                    {
+                        @($"{fromDate} – {toDate}")
+                    }
+                    else
+                    {
+                        @($"{day}{(string.IsNullOrEmpty(total) ? "" : $" · {total}h")}")
+                    }
+                </td>
+                <td>
                     <a class="btn btn-link me-2" href="/form/@f.Id">Review</a>
-                    @* Inline decisions mutate the in-memory instance and refresh the table *@
                     <button class="btn btn-success btn-sm me-2" @onclick="() => Approve(f.Id)">Approve</button>
                     <button class="btn btn-danger btn-sm" @onclick="() => Reject(f.Id)">Reject</button>
                 </td>
@@ -56,7 +62,6 @@
 }
 
 @code {
-    // Approve only if the item is still Submitted.
     private void Approve(Guid id)
     {
         if (!Me.IsApprover) return;
@@ -65,12 +70,11 @@
 
         item.Status = FormApproval.Domain.FormStatus.Approved;
         item.Audit.Add(new() { Actor = Me.Name, Action = "Approve" });
-        Repo.Save(item); // no-op in-memory but kept for parity
+        Repo.Save(item);
 
-        StateHasChanged(); // refresh UI so the item drops out of queue
+        StateHasChanged();
     }
 
-    // Reject only if the item is still Submitted.
     private void Reject(Guid id)
     {
         if (!Me.IsApprover) return;
