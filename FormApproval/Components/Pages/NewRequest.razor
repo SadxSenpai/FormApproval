@@ -1,0 +1,20 @@
+@page "/new"
+@inject FormApproval.Services.IFormRepository Repo
+@inject NavigationManager Nav
+
+<h3>Start a new request</h3>
+
+<p>Select a form type:</p>
+
+<ul class="list-group">
+@foreach (var t in Repo.GetTemplates())
+{
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <div class="fw-bold">@t.Name</div>
+            <small class="text-muted">Template ID: @t.Id</small>
+        </div>
+        <button class="btn btn-primary btn-sm" @onclick="@( () => Nav.NavigateTo($"/new/{t.Id}") )">Open</button>
+    </li>
+}
+</ul>
