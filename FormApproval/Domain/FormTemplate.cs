@@ -1,5 +1,7 @@
 ﻿namespace FormApproval.Domain;
 
+// Template metadata that describes a form's fields.
+// In this demo it's used to stamp TemplateId on instances and to document fields.
 public class FormTemplate
 {
     public Guid Id { get; set; } = Guid.NewGuid();

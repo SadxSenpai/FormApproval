@@ -1,4 +1,9 @@
 ﻿@page "/form/{Id:guid}"
+@* 
+    Detailed view of a single form instance.
+    - Shows owner, status, answers, and an audit timeline.
+    - Approver-only actions (Approve/Reject) are shown only for Submitted items.
+*@
 @inject FormApproval.Services.IFormRepository Repo
 @inject FormApproval.Services.ICurrentUser Me
 @inject NavigationManager Nav
@@ -15,6 +20,7 @@ else
     <p><b>To:</b> @item.Answers.GetValueOrDefault("ToDate")</p>
     <p><b>Reason:</b> @item.Answers.GetValueOrDefault("Reason")</p>
 
+    @* Approver actions with optional comment *@
     @if (Me.IsApprover && item.Status == FormApproval.Domain.FormStatus.Submitted)
     {
         <textarea class="form-control" @bind="decisionComment" placeholder="Optional comment"></textarea>
@@ -41,8 +47,10 @@ else
     private FormApproval.Domain.FormInstance? item;
     private string? decisionComment;
 
+    // Load the item when {Id} changes.
     protected override void OnParametersSet() => item = Repo.Get(Id);
 
+    // Approve and navigate back to dashboard (force reload to see changes).
     private void Approve()
     {
         if (item is null) return;
@@ -52,6 +60,7 @@ else
         Nav.NavigateTo("/dashboard", true);
     }
 
+    // Reject and navigate back to dashboard (force reload to see changes).
     private void Reject()
     {
         if (item is null) return;

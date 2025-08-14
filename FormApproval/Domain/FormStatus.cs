@@ -1,2 +1,10 @@
 ﻿namespace FormApproval.Domain;
-public enum FormStatus { Draft, Submitted, Approved, Rejected }
+
+// Simple workflow statuses for a request.
+public enum FormStatus
+{
+    Draft,
+    Submitted,
+    Approved,
+    Rejected
+}

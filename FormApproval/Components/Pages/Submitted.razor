@@ -1,4 +1,5 @@
 ﻿@page "/submitted"
+@* Simple success page shown after a valid submission. *@
 @inject NavigationManager Nav
 
 <h3>Submitted</h3>
@@ -11,6 +12,7 @@
 </div>
 
 @code {
+    // Navigate back to the dashboard to view submissions/approvals.
     private void GoToDashboard()
     {
         Nav.NavigateTo("/dashboard");

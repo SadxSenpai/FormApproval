@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@* 
+    Application shell:
+    - Declares HTML document and includes Bootstrap + site CSS.
+    - Routes with @rendermode="InteractiveServer" makes pages interactive by default,
+      so components like EditForm validate/submit without full page refresh.
+    - blazor.web.js bootstraps Blazor on the client.
+*@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
