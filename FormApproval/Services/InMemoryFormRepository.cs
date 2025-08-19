@@ -26,19 +26,6 @@ public class InMemoryFormRepository : IFormRepository
             }
         };
 
-        var unpaid = new FormTemplate
-        {
-            Name = "Unpaid Time Off",
-            Fields = new() {
-                new FormField { Key="FullName", Label="Full Name", Type="text", Order=0 },
-                new FormField { Key="Email", Label="Email", Type="text", Order=1 },
-                new FormField { Key="Department", Label="Department", Type="text", Order=2 },
-                new FormField { Key="FromDate", Label="From", Type="date", Order=3 },
-                new FormField { Key="ToDate", Label="To", Type="date", Order=4 },
-                new FormField { Key="Reason", Label="Reason", Type="textarea", Order=5 },
-            }
-        };
-
         var earlyLeave = new FormTemplate
         {
             Name = "Overtime Reduction (Early Leave)",
@@ -52,7 +39,7 @@ public class InMemoryFormRepository : IFormRepository
             }
         };
 
-        _templates = new() { leave, unpaid, earlyLeave };
+        _templates = new() { leave, earlyLeave };
     }
 
     // Template APIs
