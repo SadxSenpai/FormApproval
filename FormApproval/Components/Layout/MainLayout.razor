@@ -1,23 +1,40 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div id="neon">
+    <header class="topbar">
+        <div class="topbar-inner container">
+            <div class="brand">
+                <div>
+                    <div style="font-size:14px; opacity:.85; letter-spacing:.3px">FormApproval</div>
+                    <div style="font-size:11px; color:var(--muted)">Blazor‑style PTO &amp; Overtime</div>
+                </div>
+            </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <nav class="tabs">
+                <NavLink class="tab" href="/dashboard" Match="NavLinkMatch.All">Dashboard</NavLink>
+                <NavLink class="tab" href="/new">New Request</NavLink>
+                <NavLink class="tab" href="/neo#approvals">Approvals</NavLink>
+                <NavLink class="tab" href="/neo#admin">Admin</NavLink>
+            </nav>
+
+            <div class="status">
+                <span class="subtitle">Accent</span>
+                <span class="swatch" style="color:#39ff14" title="Green"></span>
+                <span class="swatch" style="color:#00e5ff" title="Cyan"></span>
+                <span class="swatch" style="color:#ff2dfc" title="Magenta"></span>
+            </div>
         </div>
+    </header>
 
-        <article class="content px-4">
+    <main class="container">
+        <article class="content">
             @Body
         </article>
     </main>
-</div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
 </div>

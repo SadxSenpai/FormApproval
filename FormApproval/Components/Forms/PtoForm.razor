@@ -12,56 +12,6 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <style>
-        :root {
-          --bg: #f7f7fb;
-          --card: #ffffff;
-          --text: #1f2937;
-          --muted: #6b7280;
-          --primary: #2563eb;
-          --border: #e5e7eb;
-          --radius: 12px;
-        }
-        .fa-container { max-width: 960px; margin: 20px 0; padding: 0 0; }
-        .fa-card {
-          background: var(--card); border: 1px solid var(--border);
-          border-radius: var(--radius); padding: 24px 20px; box-shadow: 0 4px 16px rgb(0 0 0 / 5%);
-        }
-        .fa-title { margin: 0 0 4px; font-size: 1.3rem; }
-        .fa-subtitle { color: var(--muted); margin-bottom: 14px; }
-        fieldset {
-          border: 1px solid var(--border); border-radius: 10px;
-          padding: 16px; margin: 18px 0;
-        }
-        legend { padding: 0 8px; color: var(--muted); font-size: .95rem; }
-        label { display: block; margin: 10px 0 6px; font-weight: 600; }
-        .fa-input,
-        .fa-textarea,
-        .fa-select {
-          width: 100%; padding: 10px 12px; border: 1px solid var(--border);
-          border-radius: 10px; background: #fff; color: var(--text);
-        }
-        .fa-textarea { min-height: 110px; resize: vertical; }
-        .fa-row { display: grid; grid-template-columns: 1fr; gap: 16px; }
-        @@media (min-width: 720px) {
-          .fa-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
-          .fa-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
-        }
-        .inline { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
-        .inline .form-check { display: flex; align-items: center; gap: 8px; }
-        .help { color: var(--muted); font-size: .9rem; margin-top: 6px; }
-        .actions { display: flex; gap: 10px; margin-top: 14px; }
-        .btn-reset {
-          appearance: none; border: 1px solid var(--border);
-          background: var(--card); color: var(--text); padding: 10px 14px;
-          border-radius: 10px; cursor: pointer;
-        }
-        .btn-primary-like {
-          background: var(--primary); color: #fff; border: 1px solid var(--primary);
-          padding: 10px 14px; border-radius: 10px; cursor: pointer;
-        }
-    </style>
-
     <div class="fa-container">
         <div class="fa-card">
             <h1 class="fa-title">Antrag auf Urlaub / Arbeitsbefreiung</h1>

@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FormApproval — PTO & Overtime (Blazor‑style Mock)</title>
+  <meta name="description" content="Advanced mock UI for a Blazor Server PTO & Overtime form management app — neon on dark, animated, accessible, single‑file demo." />
+  <style>
+    :root {
+      --bg: #0f1013;              /* page background */
+      --bg-elev: #15171b;         /* elevated surfaces */
+      --panel: #1c1f25;           /* cards/panels */
+      --panel-2: #22262e;         /* deeper panels */
+      --muted: #9aa0a6;           /* muted text */
+      --text: #e6e9ef;            /* primary text */
+      --primary: #2a2d34;         /* dark grey driver */
+      --ring: #39ff14;            /* neon green */
+      --ring-2: #00e5ff;          /* neon cyan */
+      --ring-3: #ff2dfc;          /* neon magenta */
+      --success: #31d0aa;
+      --warning: #ffcc00;
+      --danger: #ff5b5b;
+      --shadow: 0 15px 40px rgba(0,0,0,.45);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-lg: 22px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(57,255,20,.08), transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, rgba(0,229,255,.06), transparent 60%),
+        linear-gradient(180deg, #0d0e11, #0c0d10 40%, #0f1013 100%);
+      background-attachment: fixed;
+      letter-spacing: .2px;
+    }
+
+    /* --- Utility --- */
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px }
+    .col-12 { grid-column: span 12 }
+    .col-8 { grid-column: span 8 }
+    .col-4 { grid-column: span 4 }
+    .col-6 { grid-column: span 6 }
+    @media (max-width: 980px){ .col-8,.col-4,.col-6 { grid-column: span 12 } }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 18px 50px rgba(0,0,0,.6) }
+
+    .card-header { padding: 16px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .card-title { font-weight: 650; font-size: 16px; letter-spacing: .3px }
+    .card-body { padding: 18px }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); font-size: 12px; color: var(--muted); background: rgba(255,255,255,.02) }
+
+    .btn { --glow: var(--ring); appearance: none; border: 1px solid color-mix(in oklab, var(--glow) 80%, #000 20%);
+      background: linear-gradient(180deg, color-mix(in oklab, var(--glow) 18%, #000 82%), #0c0d10 90%);
+      color: white; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 600; letter-spacing: .3px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 0 18px rgba(57,255,20,.15), inset 0 -10px 30px rgba(255,255,255,.03);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 0 24px color-mix(in oklab, var(--glow) 35%, #000 65%), 0 10px 32px rgba(0,0,0,.5) }
+    .btn:active { transform: translateY(0) scale(.98) }
+    .btn.secondary { --glow: var(--ring-2) }
+    .btn.ghost { background: transparent; border-color: rgba(255,255,255,.2) }
+    .btn.danger { --glow: var(--danger) }
+
+    .toolbar { display:flex; flex-wrap: wrap; gap: 10px; align-items:center }
+
+    .tags { display:flex; gap: 6px; flex-wrap: wrap }
+
+    /* --- Top Bar --- */
+    header.topbar { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(18,20,24,.8), rgba(18,20,24,.55)); border-bottom: 1px solid rgba(255,255,255,.06); }
+    .topbar-inner { display:flex; align-items:center; justify-content: space-between; padding: 10px 18px }
+    .brand { display:flex; align-items:center; gap: 12px; font-weight: 800; letter-spacing: .6px }
+    .brand .logo { width: 28px; height: 28px; filter: drop-shadow(0 0 10px rgba(57,255,20,.35)); }
+
+    .status { display:flex; align-items:center; gap: 10px }
+    .status-dot { width: 8px; height: 8px; border-radius: 999px; box-shadow: 0 0 12px var(--ring); background: radial-gradient(circle at 30% 30%, #fff, var(--ring) 45%, #246b1c 70%); animation: pulse 1.6s infinite }
+    .status label { font-size: 12px; color: var(--muted) }
+
+    @keyframes pulse { 0%,100%{ transform: scale(1); opacity:.9 } 50%{ transform: scale(1.18); opacity: 1 } }
+
+    /* --- Nav --- */
+    nav.tabs { display:flex; gap: 10px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,.06) }
+    .tab { appearance: none; background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,.12); padding: 10px 14px; border-radius: 999px; cursor: pointer; transition: all var(--transition); font-weight: 600 }
+    .tab:hover { color: white; border-color: color-mix(in oklab, var(--ring) 45%, #000 55%) }
+    .tab.active { color: white; border-color: var(--ring); box-shadow: 0 0 0 2px rgba(57,255,20,.15), inset 0 0 24px rgba(57,255,20,.06) }
+
+    /* --- Forms --- */
+    .form-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px }
+    @media (max-width: 860px){ .form-grid { grid-template-columns: 1fr } }
+    label { font-size: 12px; color: var(--muted); letter-spacing: .4px }
+    .req { color: var(--warning) }
+    .control { display:flex; flex-direction: column; gap: 8px }
+    input, select, textarea {
+      background: linear-gradient(180deg, #101217, #0f1216 60%, #0e1014);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px; padding: 10px 12px; color: var(--text);
+      outline: none; transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--ring); box-shadow: 0 0 0 3px rgba(57,255,20,.15), inset 0 0 24px rgba(57,255,20,.05) }
+    .inline { display:flex; gap: 10px; align-items:center; flex-wrap: wrap }
+
+    .pill-switch { display:inline-flex; border-radius: 999px; border:1px solid rgba(255,255,255,.1); padding:4px; gap:4px; background: #0c0d10 }
+    .pill-switch button { flex:1; border:0; padding:8px 12px; border-radius: 999px; color: var(--muted); background: transparent; cursor: pointer; font-weight:600 }
+    .pill-switch button.active { color: white; background: linear-gradient(180deg, rgba(57,255,20,.12), rgba(57,255,20,.04)); box-shadow: inset 0 0 0 1px rgba(57,255,20,.3) }
+
+    .neon-border { position:relative }
+    .neon-border::after { content:""; position:absolute; inset:-1px; border-radius: inherit; padding:1px; background:
+      conic-gradient(from 0deg, var(--ring), var(--ring-2), var(--ring-3), var(--ring)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity:.45; filter: blur(.6px); }
+
+    /* --- Tables --- */
+    table { width: 100%; border-collapse: collapse; font-size: 14px }
+    thead th { text-align:left; font-weight:700; color: #cbd1d7; border-bottom: 1px solid rgba(255,255,255,.08); padding: 10px 8px }
+    tbody td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,.05); color: #dfe3ea }
+    tbody tr:hover { background: rgba(255,255,255,.03) }
+
+    .status-chip { padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.3px; display:inline-block; border:1px solid rgba(255,255,255,.15) }
+    .st-pending { color: #e6d35e; background: rgba(230,211,94,.08) }
+    .st-approved { color: #54e6b9; background: rgba(84,230,185,.08) }
+    .st-rejected { color: #ff8f8f; background: rgba(255,143,143,.08) }
+
+    /* --- Modal --- */
+    dialog { border: none; border-radius: var(--radius); background: linear-gradient(180deg, var(--panel), #191c22); color: var(--text); width: min(720px, 92vw); box-shadow: var(--shadow) }
+    dialog::backdrop { background: radial-gradient(1200px 800px at 50% -10%, rgba(57,255,20,.12), transparent 30%), rgba(0,0,0,.65) }
+
+    /* --- Toasts --- */
+    .toasts { position: fixed; right: 14px; bottom: 14px; display: grid; gap: 10px; z-index: 200 }
+    .toast { background: linear-gradient(180deg, #101216, #0f1216); border:1px solid rgba(255,255,255,.12); border-left: 4px solid var(--ring); padding: 12px 14px; border-radius: 12px; box-shadow: var(--shadow); animation: slideIn .35s ease both }
+    @keyframes slideIn { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+    /* --- Skeleton --- */
+    .skeleton { position: relative; overflow: hidden; background: #16181d; border-radius: 10px; height: 14px }
+    .skeleton::after { content: ""; position: absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); animation: shimmer 1.4s infinite }
+    @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+
+    /* --- Accent Picker --- */
+    .accent-picker { display:flex; gap:8px; align-items:center }
+    .swatch { width: 18px; height: 18px; border-radius: 6px; border:1px solid rgba(255,255,255,.2); cursor:pointer; box-shadow: 0 0 12px currentColor }
+
+    /* --- Tiny embellishments --- */
+    .scanlines { pointer-events: none; position: fixed; inset:0; opacity:.05; background: repeating-linear-gradient(180deg, #000 0 1px, transparent 1px 2px) }
+    .gridglow { pointer-events: none; position: absolute; inset:0; background:
+      radial-gradient(300px 140px at 20% 10%, rgba(57,255,20,.07), transparent 60%),
+      radial-gradient(300px 120px at 80% 0%, rgba(0,229,255,.05), transparent 60%);
+      filter: blur(30px); opacity:.8 }
+
+    .subtitle { color: var(--muted); font-size: 13px }
+    .spacer { height: 10px }
+
+    /* --- Code-like chips --- */
+    code.chip { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); padding: 4px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px }
+
+    /* --- Footer --- */
+    footer { color: var(--muted); text-align:center; font-size: 12px; padding: 30px 10px }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <header class="topbar">
+    <div class="topbar-inner container">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0%" stop-color="#39ff14"/>
+              <stop offset="60%" stop-color="#00e5ff"/>
+              <stop offset="100%" stop-color="#ff2dfc"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="28" fill="none" stroke="url(#g)" stroke-width="4"/>
+          <path d="M16 34 L30 16 L44 34 L32 48 Z" fill="none" stroke="url(#g)" stroke-width="4"/>
+        </svg>
+        <div>
+          <div style="font-size:14px; opacity:.8; letter-spacing:.3px">FormApproval</div>
+          <div style="font-size:11px; color:var(--muted)">Blazor‑style PTO & Overtime</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="accent-picker" title="Accent">
+          <span class="subtitle">Accent</span>
+          <button class="swatch" style="color:#39ff14" data-accent="green" aria-label="Neon Green"></button>
+          <button class="swatch" style="color:#00e5ff" data-accent="cyan" aria-label="Neon Cyan"></button>
+          <button class="swatch" style="color:#ff2dfc" data-accent="magenta" aria-label="Neon Magenta"></button>
+        </div>
+        <div class="status" title="Blazor Server connection (simulated)">
+          <span class="status-dot" id="connDot" role="img" aria-label="Connected"></span>
+          <label id="connLabel">Connected</label>
+          <button class="btn ghost" id="toggleConn" aria-pressed="true" style="margin-left:6px">Toggle</button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tabs container">
+      <button class="tab active" data-tab="dashboard" aria-controls="dashboard">Dashboard</button>
+      <button class="tab" data-tab="new" aria-controls="new">New Request</button>
+      <button class="tab" data-tab="approvals" aria-controls="approvals">Approvals</button>
+      <button class="tab" data-tab="admin" aria-controls="admin">Admin</button>
+    </nav>
+  </header>
+
+  <main class="container" id="app">
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="tabview" aria-labelledby="Dashboard">
+      <div class="row">
+        <div class="col-8">
+          <div class="card neon-border">
+            <div class="gridglow"></div>
+            <div class="card-header">
+              <span class="card-title">My Requests</span>
+              <span class="badge" id="reqCount">0 open</span>
+              <div style="margin-left:auto" class="inline">
+                <input id="searchMy" placeholder="Filter by keyword…" aria-label="Filter my requests" />
+                <button class="btn" onclick="switchTab('new')">+ New</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="spacer"></div>
+              <table id="myTable" aria-describedby="My submitted PTO and Overtime requests">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Details</th>
+                    <th>Dates / Hours</th>
+                    <th>Status</th>
+                    <th>Approver</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- rows go here -->
+                </tbody>
+              </table>
+              <div id="mySkeleton" style="margin-top:10px">
+                <div class="skeleton" style="height:18px"></div>
+                <div class="spacer"></div>
+                <div class="skeleton" style="height:18px"></div>
+                <div class="spacer"></div>
+                <div class="skeleton" style="height:18px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">At a Glance</span>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <div class="card" style="background: linear-gradient(180deg, #122016, #111a14); border:1px solid rgba(84,230,185,.25)">
+                    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between">
+                      <div>
+                        <div class="subtitle">PTO Balance</div>
+                        <div style="font-size:28px; font-weight:800">18.5 days</div>
+                      </div>
+                      <svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
+                        <circle cx="30" cy="30" r="26" fill="none" stroke="#263a2f" stroke-width="8"/>
+                        <circle cx="30" cy="30" r="26" fill="none" stroke="url(#grad1)" stroke-width="8" stroke-dasharray="163" stroke-dashoffset="50" stroke-linecap="round"/>
+                        <defs>
+                          <linearGradient id="grad1" x1="0" x2="1">
+                            <stop offset="0%" stop-color="#39ff14"/>
+                            <stop offset="100%" stop-color="#00e5ff"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card" style="background: linear-gradient(180deg, #1b1722, #16121a); border:1px solid rgba(255,45,252,.2)">
+                    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between">
+                      <div>
+                        <div class="subtitle">Overtime This Month</div>
+                        <div style="font-size:28px; font-weight:800">12.0 h</div>
+                      </div>
+                      <svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
+                        <rect x="12" y="36" width="8" height="12" rx="2" fill="#5f4e69"/>
+                        <rect x="26" y="28" width="8" height="20" rx="2" fill="#a065b0"/>
+                        <rect x="40" y="18" width="8" height="30" rx="2" fill="#ff2dfc"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card" style="background: linear-gradient(180deg, #10141b, #0f1216); border:1px solid rgba(0,229,255,.25)">
+                    <div class="card-body">
+                      <div class="subtitle">Upcoming Time Off</div>
+                      <div style="margin-top:8px">
+                        <div class="badge">Sep 12 – Sep 16 • <strong>4</strong> workdays</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW REQUEST -->
+    <section id="new" class="tabview" hidden>
+      <div class="row">
+        <div class="col-12">
+          <div class="card neon-border">
+            <div class="card-header">
+              <span class="card-title">Create a Request</span>
+              <div class="pill-switch" role="tablist" aria-label="Request type">
+                <button id="tab-pto" class="active" role="tab" aria-selected="true" aria-controls="panel-pto">PTO</button>
+                <button id="tab-ot" role="tab" aria-selected="false" aria-controls="panel-ot">Overtime</button>
+              </div>
+              <div style="margin-left:auto" class="inline">
+                <button class="btn secondary" id="btnPreview">Preview PDF</button>
+                <button class="btn" id="btnSubmit">Submit</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="panel-pto" role="tabpanel">
+                <div class="form-grid">
+                  <div class="control">
+                    <label for="emp">Employee <span class="req">*</span></label>
+                    <input id="emp" required placeholder="e.g., Ilerae Midho" value="Marvin Hauser" />
+                  </div>
+                  <div class="control">
+                    <label for="dept">Department</label>
+                    <select id="dept">
+                      <option>Engineering</option>
+                      <option>IT Operations</option>
+                      <option>HR</option>
+                      <option>Finance</option>
+                    </select>
+                  </div>
+                  <div class="control">
+                    <label for="leaveType">Leave Type</label>
+                    <select id="leaveType">
+                      <option value="Paid">Paid</option>
+                      <option value="Unpaid">Unpaid</option>
+                      <option value="Sick">Sick</option>
+                      <option value="Parental">Parental</option>
+                    </select>
+                  </div>
+                  <div class="control">
+                    <label for="approver">Approver</label>
+                    <select id="approver">
+                      <option>Alice Manager</option>
+                      <option>Bob Lead</option>
+                      <option>Carol HR</option>
+                    </select>
+                  </div>
+                  <div class="control">
+                    <label for="start">Start Date <span class="req">*</span></label>
+                    <input type="date" id="start" required />
+                  </div>
+                  <div class="control">
+                    <label for="end">End Date <span class="req">*</span></label>
+                    <input type="date" id="end" required />
+                  </div>
+                  <div class="control">
+                    <label>Workdays (auto)</label>
+                    <input id="workdays" readonly value="0" aria-live="polite" />
+                  </div>
+                  <div class="control">
+                    <label for="reason">Reason</label>
+                    <textarea id="reason" rows="3" placeholder="Optional note for your approver"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div id="panel-ot" role="tabpanel" hidden>
+                <div class="form-grid">
+                  <div class="control">
+                    <label>Employee <span class="req">*</span></label>
+                    <input id="ot-emp" required placeholder="e.g., Marvin Hauser" value="Marvin Hauser" />
+                  </div>
+                  <div class="control">
+                    <label>Date <span class="req">*</span></label>
+                    <input type="date" id="ot-date" required />
+                  </div>
+                  <div class="control">
+                    <label>Hours <span class="req">*</span></label>
+                    <input type="number" id="ot-hours" min="0" step="0.5" placeholder="e.g., 2.5" />
+                  </div>
+                  <div class="control">
+                    <label>Rate</label>
+                    <select id="ot-rate">
+                      <option>Weekday</option>
+                      <option>Weekend</option>
+                      <option>Night</option>
+                    </select>
+                  </div>
+                  <div class="control">
+                    <label>Project</label>
+                    <input id="ot-project" placeholder="e.g., FormApproval" />
+                  </div>
+                  <div class="control">
+                    <label>Approver</label>
+                    <select id="ot-approver">
+                      <option>Alice Manager</option>
+                      <option>Bob Lead</option>
+                      <option>Carol HR</option>
+                    </select>
+                  </div>
+                  <div class="control" style="grid-column: span 2">
+                    <label>Justification</label>
+                    <textarea id="ot-note" rows="3" placeholder="Briefly explain the overtime"></textarea>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Timeline</span>
+              <span class="subtitle">Recent activity & workflow events</span>
+              <div style="margin-left:auto" class="inline">
+                <button class="btn ghost" id="clearTimeline">Clear</button>
+              </div>
+            </div>
+            <div class="card-body" id="timeline">
+              <div class="subtitle">Events will appear here as you submit and approve items.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- APPROVALS -->
+    <section id="approvals" class="tabview" hidden>
+      <div class="row">
+        <div class="col-12">
+          <div class="card neon-border">
+            <div class="card-header">
+              <span class="card-title">Team Approvals</span>
+              <div class="inline" style="margin-left:auto">
+                <input id="searchAppr" placeholder="Filter approvals…" />
+                <button class="btn ghost" id="bulkApprove">Approve All (Visible)</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <table id="apprTable">
+                <thead>
+                  <tr>
+                    <th>Requester</th>
+                    <th>Type</th>
+                    <th>Dates / Hours</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody><!-- rows injected --></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="admin" class="tabview" hidden>
+      <div class="row">
+        <div class="col-6">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Templates</span></div>
+            <div class="card-body">
+              <div class="inline" style="gap:8px; margin-bottom:10px">
+                <input id="tplName" placeholder="Template name" />
+                <button class="btn" id="saveTpl">Save</button>
+                <button class="btn ghost" id="loadTpl">Load</button>
+              </div>
+              <div class="form-grid">
+                <div class="control">
+                  <label>Default PTO Approver</label>
+                  <select id="tplApprover"><option>Alice Manager</option><option>Bob Lead</option><option>Carol HR</option></select>
+                </div>
+                <div class="control">
+                  <label>Require Reason</label>
+                  <select id="tplRequireReason"><option>No</option><option>Yes</option></select>
+                </div>
+                <div class="control" style="grid-column: span 2">
+                  <label>Custom Disclaimer</label>
+                  <textarea id="tplDisclaimer" rows="3" placeholder="Shown at submit time"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Audit Log</span></div>
+            <div class="card-body" id="audit">
+              <div class="subtitle">No entries yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="detailDlg">
+    <form method="dialog">
+      <div class="card-header" style="border:0">
+        <span class="card-title" id="dlgTitle">Request</span>
+        <div style="margin-left:auto" class="inline">
+          <button class="btn secondary" value="cancel">Close</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="dlgBody"></div>
+        <div class="spacer"></div>
+        <div class="inline">
+          <button class="btn" id="dlgApprove" value="approve">Approve</button>
+          <button class="btn danger" id="dlgReject" value="reject">Reject</button>
+          <button class="btn ghost" id="dlgDownload" value="download">Download PDF</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toasts" id="toasts"></div>
+
+  <footer>
+    <div>© 2025 FormApproval — Neon‑Dark Mock UI. Built as an HTML single‑file demo (no dependencies).</div>
+    <div style="margin-top:6px">Keyboard: <code class="chip">/</code> focus search • <code class="chip">Alt + N</code> new request • <code class="chip">Alt + D</code> dashboard</div>
+  </footer>
+
+  <script>
+    // --- State ---
+    const state = {
+      accent: 'green',
+      myRequests: [],     // {id, type, detail, dates, status, approver, submittedAt}
+      approvals: [],      // clone with additional approver actions
+      templates: {},
+      connected: true,
+      idSeq: 1
+    };
+
+    const el = sel => document.querySelector(sel);
+    const els = sel => Array.from(document.querySelectorAll(sel));
+
+    // --- Accent switcher ---
+    els('.swatch').forEach(sw => sw.addEventListener('click', () => {
+      const acc = sw.dataset.accent;
+      state.accent = acc;
+      if (acc === 'green') setAccent('#39ff14','#00e5ff','#ff2dfc');
+      if (acc === 'cyan') setAccent('#00e5ff','#39ff14','#ff2dfc');
+      if (acc === 'magenta') setAccent('#ff2dfc','#00e5ff','#39ff14');
+      toast(`Accent switched to ${acc}`);
+    }));
+    function setAccent(a,b,c){
+      const rs = document.documentElement.style;
+      rs.setProperty('--ring', a); rs.setProperty('--ring-2', b); rs.setProperty('--ring-3', c);
+    }
+
+    // --- Tabs ---
+    els('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+    function switchTab(id){
+      els('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
+      els('.tabview').forEach(v => v.hidden = v.id !== id);
+      if(id==='new') el('#emp')?.focus();
+    }
+
+    // keyboard shortcuts
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === '/' && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); el('#searchMy')?.focus(); }
+      if (e.altKey && (e.key==='n'||e.key==='N')) switchTab('new');
+      if (e.altKey && (e.key==='d'||e.key==='D')) switchTab('dashboard');
+    });
+
+    // --- Connection toggle (simulated Blazor Server status) ---
+    el('#toggleConn').addEventListener('click', ()=>{
+      state.connected = !state.connected;
+      const dot = el('#connDot');
+      const lab = el('#connLabel');
+      if(state.connected){ dot.style.background = 'radial-gradient(circle at 30% 30%, #fff, var(--ring) 45%, #246b1c 70%)'; dot.style.boxShadow = '0 0 12px var(--ring)'; lab.textContent = 'Connected'; }
+      else { dot.style.background = 'radial-gradient(circle at 30% 30%, #fff, #666 45%, #333 70%)'; dot.style.boxShadow = '0 0 0 transparent'; lab.textContent = 'Disconnected'; }
+      toast(`Server ${state.connected? 'connected' : 'disconnected'}`);
+    });
+
+    // --- PTO Workdays calculation (excl. weekends) ---
+    function businessDays(start, end){
+      if(!start || !end) return 0;
+      const s = new Date(start); const e = new Date(end);
+      if (e < s) return 0;
+      let days = 0;
+      const d = new Date(s);
+      while (d <= e){ const day = d.getDay(); if(day !== 0 && day !== 6) days++; d.setDate(d.getDate()+1); }
+      return days;
+    }
+    ['start','end'].forEach(id=> el('#'+id).addEventListener('change', ()=>{
+      el('#workdays').value = businessDays(el('#start').value, el('#end').value);
+    }));
+
+    // --- Submit & Preview ---
+    el('#btnPreview').addEventListener('click', ()=>{
+      const doc = buildPreview();
+      const blob = new Blob([doc], {type: 'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'FormApproval_Preview.html'; a.click();
+      URL.revokeObjectURL(url);
+      toast('Preview generated (HTML)');
+    });
+
+    el('#btnSubmit').addEventListener('click', ()=>{
+      const kind = el('#tab-pto').classList.contains('active') ? 'PTO' : 'Overtime';
+      if (kind==='PTO') {
+        if(!el('#emp').value || !el('#start').value || !el('#end').value){ toast('Please fill required PTO fields', true); return; }
+        const id = state.idSeq++;
+        const days = businessDays(el('#start').value, el('#end').value);
+        const item = { id, type:'PTO', detail: el('#leaveType').value, dates: `${el('#start').value} → ${el('#end').value} (${days}d)`, status:'Pending', approver: el('#approver').value, submittedAt: new Date() };
+        state.myRequests.unshift(item);
+        state.approvals.unshift({...item, requester: el('#emp').value});
+        drawTables(); addTimeline(`🗓️ PTO submitted for ${item.dates}`); toast('PTO request submitted'); switchTab('dashboard');
+      } else {
+        if(!el('#ot-emp').value || !el('#ot-date').value || !el('#ot-hours').value){ toast('Please fill required OT fields', true); return; }
+        const id = state.idSeq++;
+        const item = { id, type:'Overtime', detail: el('#ot-project').value || '—', dates: `${el('#ot-date').value} • ${Number(el('#ot-hours').value).toFixed(1)}h @ ${el('#ot-rate').value}`, status:'Pending', approver: el('#ot-approver').value, submittedAt: new Date() };
+        state.myRequests.unshift(item);
+        state.approvals.unshift({...item, requester: el('#ot-emp').value});
+        drawTables(); addTimeline(`⏱️ OT submitted for ${item.dates}`); toast('Overtime request submitted'); switchTab('dashboard');
+      }
+    });
+
+    function buildPreview(){
+      const isPto = el('#tab-pto').classList.contains('active');
+      if(isPto){
+        return `<!doctype html><meta charset=\"utf-8\"><title>PTO Preview</title><style>body{font-family:Arial; padding:24px}h1{font-size:20px}</style><h1>PTO Request</h1><p><b>Employee:</b> ${escapeHtml(el('#emp').value)}<br><b>Department:</b> ${escapeHtml(el('#dept').value)}<br><b>Type:</b> ${escapeHtml(el('#leaveType').value)}<br><b>Dates:</b> ${escapeHtml(el('#start').value)} → ${escapeHtml(el('#end').value)} (${escapeHtml(el('#workdays').value)} workdays)<br><b>Approver:</b> ${escapeHtml(el('#approver').value)}</p><p><b>Reason:</b><br>${escapeHtml(el('#reason').value)}</p>`
+      } else {
+        return `<!doctype html><meta charset=\"utf-8\"><title>Overtime Preview</title><style>body{font-family:Arial; padding:24px}h1{font-size:20px}</style><h1>Overtime Request</h1><p><b>Employee:</b> ${escapeHtml(el('#ot-emp').value)}<br><b>Date:</b> ${escapeHtml(el('#ot-date').value)}<br><b>Hours:</b> ${escapeHtml(el('#ot-hours').value)} @ ${escapeHtml(el('#ot-rate').value)}<br><b>Project:</b> ${escapeHtml(el('#ot-project').value)}<br><b>Approver:</b> ${escapeHtml(el('#ot-approver').value)}</p><p><b>Justification:</b><br>${escapeHtml(el('#ot-note').value)}</p>`
+      }
+    }
+
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
+
+    // --- Tables render ---
+    function drawTables(){
+      const tbody = el('#myTable tbody');
+      tbody.innerHTML = '';
+      for(const r of state.myRequests){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.type}</td>
+          <td>${escapeHtml(r.detail)}</td>
+          <td>${escapeHtml(r.dates)}</td>
+          <td><span class="status-chip ${stClass(r.status)}">${r.status}</span></td>
+          <td>${escapeHtml(r.approver)}</td>`;
+        tbody.appendChild(tr);
+      }
+      el('#reqCount').textContent = `${state.myRequests.filter(x=>x.status==='Pending').length} open`;
+      el('#mySkeleton').style.display = state.myRequests.length ? 'none' : 'block';
+
+      const at = el('#apprTable tbody'); at.innerHTML='';
+      for(const a of state.approvals){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(a.requester)}</td>
+          <td>${a.type}</td>
+          <td>${escapeHtml(a.dates)}</td>
+          <td>${a.submittedAt.toLocaleString()}</td>
+          <td><span class="status-chip ${stClass(a.status)}">${a.status}</span></td>
+          <td><button class="btn secondary" data-id="${a.id}">Review</button></td>`;
+        at.appendChild(tr);
+      }
+      // attach listeners
+      at.querySelectorAll('button[data-id]').forEach(b=> b.addEventListener('click',()=> openDetail(+b.dataset.id)));
+    }
+
+    function stClass(s){ return s==='Pending'?'st-pending': s==='Approved'?'st-approved':'st-rejected'; }
+
+    // --- Filtering ---
+    el('#searchMy').addEventListener('input', ()=> filterTable('#myTable', el('#searchMy').value));
+    el('#searchAppr').addEventListener('input', ()=> filterTable('#apprTable', el('#searchAppr').value));
+    function filterTable(sel, q){
+      q = (q||'').toLowerCase();
+      const rows = els(sel+' tbody tr');
+      rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none');
+    }
+
+    // --- Detail dialog ---
+    function openDetail(id){
+      const rec = state.approvals.find(x=>x.id===id);
+      if(!rec) return;
+      el('#dlgTitle').textContent = `${rec.type} — ${rec.requester}`;
+      el('#dlgBody').innerHTML = `<p><b>Details:</b> ${escapeHtml(rec.detail)}<br><b>When:</b> ${escapeHtml(rec.dates)}<br><b>Approver:</b> ${escapeHtml(rec.approver)}<br><b>Status:</b> ${escapeHtml(rec.status)}</p>`;
+      const dlg = el('#detailDlg');
+      dlg.showModal();
+      dlg.returnValue = '';
+      dlg.addEventListener('close', handleDlgClose, { once: true });
+      el('#dlgApprove').onclick = ()=> dlg.returnValue = 'approve';
+      el('#dlgReject').onclick  = ()=> dlg.returnValue = 'reject';
+      el('#dlgDownload').onclick = ()=> { downloadPdfLike(rec); dlg.close('cancel'); };
+      dlg.dataset.id = String(id);
+    }
+    function handleDlgClose(e){
+      const id = +el('#detailDlg').dataset.id;
+      const val = el('#detailDlg').returnValue;
+      if(val==='approve') setStatus(id, 'Approved');
+      if(val==='reject') setStatus(id, 'Rejected');
+    }
+
+    function setStatus(id, st){
+      const tgtA = state.approvals.find(x=>x.id===id);
+      const tgtM = state.myRequests.find(x=>x.id===id);
+      if(!tgtA || !tgtM) return;
+      tgtA.status = tgtM.status = st;
+      drawTables();
+      addTimeline(`${st==='Approved'?'✅':'❌'} ${tgtA.type} ${st.toLowerCase()} — ${tgtA.dates}`);
+      toast(`${tgtA.type} ${st}`);
+      if (st==='Approved') confetti();
+      addAudit(`Changed status of #${id} to ${st}`);
+    }
+
+    // Bulk approve visible rows
+    el('#bulkApprove').addEventListener('click', ()=>{
+      const rows = Array.from(el('#apprTable tbody').rows);
+      const ids = rows.filter(r=> r.style.display !== 'none')
+        .map(r=> +r.querySelector('button[data-id]').dataset.id);
+      ids.forEach(id=> setStatus(id, 'Approved'));
+      toast(`Approved ${ids.length} item(s)`);
+    });
+
+    function addTimeline(msg){
+      const wrap = el('#timeline');
+      const p = document.createElement('div');
+      p.className = 'badge';
+      p.style.borderColor = 'rgba(57,255,20,.3)';
+      p.textContent = new Date().toLocaleString() + ' — ' + msg;
+      wrap.prepend(p);
+    }
+    el('#clearTimeline').addEventListener('click', ()=> el('#timeline').innerHTML = '<div class="subtitle">Cleared.</div>');
+
+    function addAudit(msg){
+      const a = document.createElement('div'); a.textContent = new Date().toLocaleString() + ' — ' + msg; a.className = 'subtitle';
+      el('#audit').prepend(a);
+    }
+
+    // --- Toasts ---
+    function toast(msg, danger){
+      const t = document.createElement('div'); t.className = 'toast';
+      if (danger) t.style.borderLeftColor = 'var(--danger)';
+      t.textContent = msg; el('#toasts').appendChild(t);
+      setTimeout(()=> t.remove(), 3500);
+    }
+
+    // --- Confetti (tiny) ---
+    function confetti(){
+      const n = 40; const f = document.createDocumentFragment();
+      for(let i=0;i<n;i++){
+        const s = document.createElement('span');
+        s.style.position='fixed'; s.style.left=(Math.random()*100)+'vw'; s.style.top='-10px'; s.style.width='6px'; s.style.height='10px';
+        s.style.background = ['var(--ring)','var(--ring-2)','var(--ring-3)'][i%3]; s.style.filter='brightness(1.2)'; s.style.transform=`rotate(${Math.random()*360}deg)`;
+        s.style.boxShadow='0 0 8px rgba(255,255,255,.2)'; s.style.borderRadius='2px'; s.style.zIndex=300;
+        document.body.appendChild(s);
+        const dur = 600 + Math.random()*900;
+        s.animate([{ transform:`translateY(0) rotate(0deg)` }, { transform:`translateY(${100+Math.random()*40}vh) rotate(${90+Math.random()*180}deg)` }], { duration: dur, easing:'cubic-bezier(.2,.8,.2,1)' }).onfinish = ()=> s.remove();
+      }
+    }
+
+    // --- Download PDF-like (HTML) ---
+    function downloadPdfLike(rec){
+      const html = `<!doctype html><meta charset=\"utf-8\"><title>${rec.type} #${rec.id}</title><style>body{font-family:Arial;padding:24px}h1{font-size:20px}</style><h1>${rec.type} Request #${rec.id}</h1><p><b>Requester:</b> ${escapeHtml(rec.requester||'Me')}<br><b>Details:</b> ${escapeHtml(rec.detail)}<br><b>When:</b> ${escapeHtml(rec.dates)}<br><b>Status:</b> ${escapeHtml(rec.status)}</p>`;
+      const blob = new Blob([html], {type:'text/html'}); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=`${rec.type}_${rec.id}.html`; a.click(); URL.revokeObjectURL(url);
+      toast('Download started');
+    }
+
+    // --- Template save/load ---
+    el('#saveTpl').addEventListener('click', ()=>{
+      const name = el('#tplName').value.trim() || 'default';
+      state.templates[name] = {
+        approver: el('#tplApprover').value,
+        requireReason: el('#tplRequireReason').value === 'Yes',
+        disclaimer: el('#tplDisclaimer').value
+      };
+      toast(`Template \"${name}\" saved`); addAudit(`Saved template \"${name}\"`);
+    });
+    el('#loadTpl').addEventListener('click', ()=>{
+      const name = el('#tplName').value.trim() || 'default';
+      const t = state.templates[name];
+      if(!t){ toast('No template found', true); return; }
+      el('#tplApprover').value = t.approver; el('#tplRequireReason').value = t.requireReason ? 'Yes' : 'No'; el('#tplDisclaimer').value = t.disclaimer || '';
+      el('#approver').value = t.approver; // apply to PTO form as default
+      toast(`Template \"${name}\" loaded`); addAudit(`Loaded template \"${name}\"`);
+    });
+
+    // --- New Request type switch (PTO / OT) ---
+    el('#tab-pto').addEventListener('click', ()=> setReqType(true));
+    el('#tab-ot').addEventListener('click', ()=> setReqType(false));
+    function setReqType(isPto){
+      el('#tab-pto').classList.toggle('active', isPto); el('#tab-ot').classList.toggle('active', !isPto);
+      el('#panel-pto').hidden = !isPto; el('#panel-ot').hidden = isPto;
+    }
+
+    // --- Seed data ---
+    function seed(){
+      const now = new Date();
+      const demo = [
+        {id: state.idSeq++, type:'PTO', requester:'Marvin Hauser', detail:'Paid', dates:'2025-09-12 → 2025-09-16 (4d)', status:'Pending', approver:'Alice Manager', submittedAt: new Date(now - 36e5)},
+        {id: state.idSeq++, type:'Overtime', requester:'Marvin Hauser', detail:'FormApproval', dates:'2025-08-20 • 3.0h @ Weekday', status:'Approved', approver:'Bob Lead', submittedAt: new Date(now - 864e5)},
+        {id: state.idSeq++, type:'PTO', requester:'Marvin Hauser', detail:'Sick', dates:'2025-08-05 → 2025-08-05 (1d)', status:'Rejected', approver:'Carol HR', submittedAt: new Date(now - 1728e5)}
+      ];
+      state.myRequests = demo.map(x=> ({...x}));
+      state.approvals = demo.map(x=> ({...x}));
+      drawTables();
+      setTimeout(()=> el('#mySkeleton').style.display='none', 600);
+    }
+
+    // init
+    seed();
+  </script>
+</body>
+</html>

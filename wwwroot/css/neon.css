@@ -1,0 +1,93 @@
+/* Global dark base with subtle accent blend */
+html, body { background:#121419; color:#e6e9ef; }
+#neon {
+  /* light-dark grey gradient flowing downward, blended with accent */
+  background:
+    linear-gradient(180deg, #1a1d23 0%, #14171c 55%, #0f1216 100%),
+    radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--ring) 12%, transparent) 0, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, color-mix(in oklab, var(--ring-2) 10%, transparent) 0, transparent 60%);
+  color: var(--text, #e6e9ef);
+  min-height:100vh;
+}
+
+/* Theme tokens (homogenous across project) */
+:root{
+  --bg:#121419; --bg-elev:#171a1f;
+  --panel:#1b1f26; --panel-2:#171b22; /* slightly lighter dark greys */
+  --text:#e6e9ef; --muted:#9aa0a6;
+  --primary:#2a2d34;
+  --ring:#39ff14; --ring-2:#00e5ff; --ring-3:#ff2dfc;
+  --success:#31d0aa; --warning:#ffcc00; --danger:#ff5b5b;
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  --radius:16px; --transition:220ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* Containers */
+#neon .container{max-width:1200px;margin:0 auto;padding:14px 24px;}
+#neon .row{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+#neon .col-12{grid-column:span 12} #neon .col-8{grid-column:span 8} #neon .col-4{grid-column:span 4}
+@media (max-width:980px){ #neon .col-8, #neon .col-4, #neon .col-12{grid-column:span 12} }
+
+/* Topbar + tabs */
+#neon header.topbar{
+  position:sticky; top:0; z-index:50; backdrop-filter:blur(8px);
+  background:linear-gradient(180deg, rgba(23,26,31,.92), rgba(23,26,31,.65));
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+#neon .topbar-inner{display:flex;align-items:center;gap:18px}
+#neon .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.6px}
+#neon .tabs{display:flex;gap:10px;margin-left:10px;flex-wrap:wrap}
+#neon .tab{
+  appearance:none;background:transparent;color:var(--muted);
+  border:1px solid rgba(255,255,255,.12);padding:10px 14px;border-radius:999px;
+  cursor:pointer;transition:all var(--transition);font-weight:700;text-decoration:none
+}
+#neon .tab:hover{color:#fff;border-color:var(--ring)}
+#neon .tab.active,[aria-current=true].tab{
+  color:#fff;border-color:var(--ring);
+  box-shadow:0 0 0 2px color-mix(in oklab, var(--ring) 25%, transparent), inset 0 0 24px rgba(57,255,20,.06)
+}
+#neon .status{display:flex;align-items:center;gap:8px;margin-left:auto}
+#neon .swatch{width:18px;height:18px;border-radius:6px;border:1px solid rgba(255,255,255,.2);box-shadow:0 0 12px currentColor}
+
+/* Cards / tables */
+#neon .card{
+  background:linear-gradient(180deg, var(--panel), var(--panel-2));
+  border-radius:var(--radius);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow);overflow:hidden
+}
+#neon .card:hover{transform:translateY(-2px);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#neon .card-header{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+#neon .card-title{font-weight:700}
+#neon .card-body{padding:16px}
+#neon table{width:100%;border-collapse:collapse;font-size:14px}
+#neon thead th{text-align:left;color:#cbd1d7;border-bottom:1px solid rgba(255,255,255,.08);padding:10px 8px}
+#neon tbody td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05);color:#dfe3ea}
+#neon tbody tr:hover{background:rgba(255,255,255,.03)}
+#neon .status-chip{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.15)}
+#neon .st-pending{color:#e6d35e;background:rgba(230,211,94,.08)}
+#neon .st-approved{color:#54e6b9;background:rgba(84,230,185,.08)}
+#neon .st-rejected{color:#ff8f8f;background:rgba(255,143,143,.08)}
+
+/* Inputs / links / buttons */
+#neon input, #neon select, #neon textarea{
+  background:linear-gradient(180deg,#12161c,#101419 60%,#0f1216);
+  border:1px solid rgba(255,255,255,.10); border-radius:12px; padding:10px 12px; color:var(--text); outline:none;
+}
+#neon input:focus, #neon select:focus, #neon textarea:focus{
+  border-color:var(--ring); box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent), inset 0 0 24px rgba(57,255,20,.05)
+}
+#neon a, #neon .btn-link{ color:var(--ring-2) }
+#neon a:hover, #neon .btn-link:hover{ color:#9af2ff }
+#neon .btn{
+  --glow:var(--ring);appearance:none;border:1px solid color-mix(in oklab, var(--glow) 70%, #000 30%);
+  background:linear-gradient(180deg, color-mix(in oklab, var(--glow) 14%, #0f1216 86%), #0c0d10 90%);
+  color:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600;letter-spacing:.3px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06),0 0 24px color-mix(in oklab, var(--glow) 25%, transparent), inset 0 -10px 30px rgba(255,255,255,.05);
+  transition:transform var(--transition), box-shadow var(--transition), background var(--transition)
+}
+#neon .btn.secondary{ --glow:var(--ring-2) }
+#neon .btn.ghost{ background:transparent; border-color:rgba(255,255,255,.25) }
+#neon .btn:hover{ transform:translateY(-1px) }
+
+/* Utility */
+#neon .subtitle{ color:var(--muted); font-size:13px }

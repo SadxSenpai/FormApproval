@@ -1,7 +1,171 @@
 ﻿@page "/"
+@using FormApproval.Domain
+@using Microsoft.AspNetCore.Components.Routing
+@inject FormApproval.Services.IFormRepository Repo
+@inject FormApproval.Services.ICurrentUser Me
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
+@code {
+    private string? searchMy;
 
-<h1>Hello, world!</h1>
+    private IEnumerable<FormInstance> Mine => Repo.GetMine(Me.UserId);
+    private IEnumerable<FormInstance> MineFiltered =>
+        string.IsNullOrWhiteSpace(searchMy) ? Mine : Mine.Where(r => Matches(r, searchMy!));
 
-Welcome to your new app.
+    private int OpenCount => Mine.Count(x => x.Status == FormStatus.Submitted);
+
+    private static bool Matches(FormInstance r, string q)
+    {
+        q = q.ToLowerInvariant();
+        string from = r.Answers.GetValueOrDefault("FromDate") ?? r.Answers.GetValueOrDefault("Date") ?? "";
+        string to = r.Answers.GetValueOrDefault("ToDate") ?? r.Answers.GetValueOrDefault("EndTime") ?? "";
+        string hours = r.Answers.GetValueOrDefault("TotalHours") ?? "";
+        string details = r.Answers.GetValueOrDefault("Reason") ?? r.Answers.GetValueOrDefault("Project") ?? "";
+        return (r.OwnerName ?? "").ToLower().Contains(q)
+            || r.Status.ToString().ToLower().Contains(q)
+            || from.ToLower().Contains(q)
+            || to.ToLower().Contains(q)
+            || hours.ToLower().Contains(q)
+            || details.ToLower().Contains(q);
+    }
+
+    private static string Kind(FormInstance r)
+        => string.IsNullOrEmpty(r.Answers.GetValueOrDefault("FromDate")) &&
+           string.IsNullOrEmpty(r.Answers.GetValueOrDefault("ToDate"))
+           ? "Overtime" : "PTO";
+
+    private static string StatusClass(FormStatus s) => s switch
+    {
+        FormStatus.Approved => "st-approved",
+        FormStatus.Rejected => "st-rejected",
+        FormStatus.Submitted => "st-pending",
+        _ => "st-pending"
+    };
+
+    private static string Detail(FormInstance r)
+    {
+        var kind = Kind(r);
+        if (kind == "PTO")
+        {
+            var from = r.Answers.GetValueOrDefault("FromDate");
+            var to   = r.Answers.GetValueOrDefault("ToDate");
+            return $"{from} \u2192 {to}";
+        }
+        else
+        {
+            var day   = r.Answers.GetValueOrDefault("Date");
+            var hours = r.Answers.GetValueOrDefault("TotalHours");
+            var rate  = r.Answers.GetValueOrDefault("Rate");
+            return $"{day}{(string.IsNullOrEmpty(hours) ? "" : $" \u2022 {hours}h")}{(string.IsNullOrEmpty(rate) ? "" : $" \u0040 {rate}")}";
+        }
+    }
+
+    private void NewRequest() => Nav.NavigateTo("/new", true);
+}
+
+<section class="row">
+    <div class="col-8">
+        <div class="card neon-border">
+            <div class="card-header">
+                <span class="card-title">My Requests</span>
+                <span class="badge">@OpenCount open</span>
+                <div style="margin-left:auto" class="inline">
+                    <input placeholder="Filter by keyword…" aria-label="Filter my requests" @bind="searchMy" />
+                    <button class="btn" @onclick="NewRequest">+ New</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table aria-describedby="My submitted PTO and Overtime requests">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Details</th>
+                            <th>Dates / Hours</th>
+                            <th>Status</th>
+                            <th>Approver</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in MineFiltered.OrderByDescending(x => x.CreatedAt))
+                        {
+                            var approver = r.Answers.GetValueOrDefault("Approver") ?? "—";
+                            <tr>
+                                <td>@Kind(r)</td>
+                                <td>@(r.Answers.GetValueOrDefault("Reason") ?? r.Answers.GetValueOrDefault("Project") ?? "—")</td>
+                                <td>@Detail(r)</td>
+                                <td><span class="status-chip @StatusClass(r.Status)">@r.Status</span></td>
+                                <td>@approver</td>
+                            </tr>
+                        }
+                        @if (!Mine.Any())
+                        {
+                            <tr><td colspan="5"><span class="subtitle">No items yet.</span></td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">At a Glance</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card" style="background: linear-gradient(180deg, #122016, #111a14); border:1px solid rgba(84,230,185,.25)">
+                            <div class="card-body" style="display:flex; align-items:center; justify-content:space-between">
+                                <div>
+                                    <div class="subtitle">PTO Balance</div>
+                                    <div style="font-size:28px; font-weight:800">18.5 days</div>
+                                </div>
+                                <svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
+                                    <circle cx="30" cy="30" r="26" fill="none" stroke="#263a2f" stroke-width="8" />
+                                    <circle cx="30" cy="30" r="26" fill="none" stroke="url(#grad1)" stroke-width="8" stroke-dasharray="163" stroke-dashoffset="50" stroke-linecap="round" />
+                                    <defs>
+                                        <linearGradient id="grad1" x1="0" x2="1">
+                                            <stop offset="0%" stop-color="#39ff14" />
+                                            <stop offset="100%" stop-color="#00e5ff" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card" style="background: linear-gradient(180deg, #1b1722, #16121a); border:1px solid rgba(255,45,252,.2)">
+                            <div class="card-body" style="display:flex; align-items:center; justify-content:space-between">
+                                <div>
+                                    <div class="subtitle">Overtime This Month</div>
+                                    <div style="font-size:28px; font-weight:800">12.0 h</div>
+                                </div>
+                                <svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
+                                    <rect x="12" y="36" width="8" height="12" rx="2" fill="#5f4e69" />
+                                    <rect x="26" y="28" width="8" height="20" rx="2" fill="#a065b0" />
+                                    <rect x="40" y="18" width="8" height="30" rx="2" fill="#ff2dfc" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card" style="background: linear-gradient(180deg, #10141b, #0f1216); border:1px solid rgba(0,229,255,.25)">
+                            <div class="card-body">
+                                <div class="subtitle">Upcoming Time Off</div>
+                                <div style="margin-top:8px">
+                                    <div class="badge">Sep 12 – Sep 16 • <strong>4</strong> workdays</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- /row -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer style="color:var(--muted); text-align:center; font-size:12px; padding:30px 10px">
+    <div>© 2025 FormApproval — Neon‑Dark Mock UI.</div>
+    <div style="margin-top:6px">Keyboard: <code class="chip">/</code> focus search • <code class="chip">Alt + N</code> new request • <code class="chip">Alt + D</code> dashboard</div>
+</footer>

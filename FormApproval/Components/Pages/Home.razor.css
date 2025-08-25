@@ -1,0 +1,25 @@
+/* Page tweaks that sit on top of neon.css */
+:root { --radius: 16px; }
+
+.neon-border { position: relative; border-radius: var(--radius); }
+.neon-border::after {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
+  background: conic-gradient(from 0deg, var(--ring), var(--ring-2), var(--ring-3), var(--ring));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; opacity: .45; filter: blur(.6px);
+}
+
+input[placeholder] {
+  background: linear-gradient(180deg,#101217,#0f1216 60%,#0e1014);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; padding: 10px 12px; color: var(--text);
+}
+
+/* subtle neon border around the main card to match the mock */
+.neon-border{ position:relative; border-radius:16px; }
+.neon-border::after{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1px;
+  background:conic-gradient(from 0deg, var(--ring), var(--ring-2), var(--ring-3), var(--ring));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; opacity:.45; filter:blur(.6px);
+}
