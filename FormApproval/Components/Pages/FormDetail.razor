@@ -26,6 +26,15 @@ else
     }
     <p><b>Reason:</b> @item.Answers.GetValueOrDefault("Reason")</p>
 
+    @* Show attached PTO PDF when available *@
+    @if (!string.IsNullOrWhiteSpace(item.Answers.GetValueOrDefault("PtoPdfUrl")))
+    {
+        <h5 class="mt-3">PTO PDF</h5>
+        <object data="@item.Answers["PtoPdfUrl"]" type="application/pdf" width="100%" height="600">
+            <a href="@item.Answers["PtoPdfUrl"]" target="_blank" rel="noopener">Open PTO PDF</a>
+        </object>
+    }
+
     @if (Me.IsApprover && item.Status == FormApproval.Domain.FormStatus.Submitted)
     {
         <textarea class="form-control" @bind="decisionComment" placeholder="Optional comment"></textarea>

@@ -1,5 +1,6 @@
 ﻿using FormApproval.Services;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using QuestPDF.Infrastructure; // Added for LicenseType
 
 // App startup:
 // - Configures Blazor (interactive server components).
@@ -7,6 +8,9 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 // - Enables antiforgery protection and static files.
 // - Maps the Razor Components app.
 var builder = WebApplication.CreateBuilder(args);
+
+// Apply QuestPDF license (required even for Community usage)
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Blazor Web App services (server-side interactivity).
 builder.Services.AddRazorComponents()
@@ -17,6 +21,8 @@ builder.Services.AddSingleton<IFormRepository, InMemoryFormRepository>(); // in-
 builder.Services.AddSingleton<CurrentUserStub>();                         // mock user/role
 builder.Services.AddSingleton<ICurrentUser>(sp => sp.GetRequiredService<CurrentUserStub>());
 builder.Services.AddSingleton<FormServices>(); // placeholder for future app services
+// After builder.Services is created, register the PDF service
+builder.Services.AddSingleton<FormApproval.Services.IPdfService, FormApproval.Services.PdfService>();
 
 var app = builder.Build();
 

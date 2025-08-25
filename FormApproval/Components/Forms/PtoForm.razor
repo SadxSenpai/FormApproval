@@ -3,6 +3,7 @@
 @inject FormApproval.Services.ICurrentUser Me
 @inject NavigationManager Nav
 @inject ILogger<PtoForm> Logger
+@inject FormApproval.Services.IPdfService Pdfs
 
 <EditForm Model="@vm"
           OnValidSubmit="@HandleSubmit"
@@ -227,6 +228,11 @@
         inst.Status = FormApproval.Domain.FormStatus.Submitted;
         inst.SubmittedAt = DateTime.UtcNow;
         inst.Audit.Add(new() { Actor = Me.Name, Action = "Submit" });
+
+        // Generate PTO PDF and attach URL for review window
+        var pdfUrl = Pdfs.SavePtoPdf(inst);
+        inst.Answers["PtoPdfUrl"] = pdfUrl;
+        inst.Audit.Add(new() { Actor = Me.Name, Action = "Attach", Comment = "PTO PDF attached" });
 
         Repo.CreateDraft(inst);
         Nav.NavigateTo("/submitted");
