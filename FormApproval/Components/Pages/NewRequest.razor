@@ -1,4 +1,4 @@
-@page "/new"
+@page "/new/select"
 @inject FormApproval.Services.IFormRepository Repo
 @inject NavigationManager Nav
 
@@ -18,6 +18,25 @@
     </li>
 }
 </ul>
+
+<style>
+    html, body {
+        background: radial-gradient(1400px 600px at 20% -10%, rgba(124,92,255,.15), transparent),
+                    radial-gradient(1200px 700px at 120% 20%, rgba(38,208,124,.12), transparent),
+                    var(--bg) !important;
+        color: var(--text);
+    }
+
+    /* give the content area some height so you can see the gradient even on empty pages */
+    .page {
+        min-height: calc(100vh - 120px);
+    }
+
+    /* just in case any container brings a white bg */
+    .container, .content, main, .page {
+        background: transparent !important;
+    }
+</style>
 
 @code {
     private void OpenTemplate(Guid id)

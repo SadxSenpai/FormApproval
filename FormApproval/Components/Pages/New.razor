@@ -1,34 +1,207 @@
-﻿@page "/new/{TemplateId:guid}"
-@rendermode InteractiveServer
-@* 
-    Page to create a new request for the selected template.
-    Supports:
-      - PTO: German form as provided by the user.
-      - Overtime/Early leave: timeline UI with start/end time and total.
-*@
-@using FormApproval.Components.Forms
-@inject FormApproval.Services.IFormRepository Repo
+﻿@page "/new"
+@using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager Nav
 
-<h3>@(templateName ?? "New Request")</h3>
+<div class="card neon-border">
+    <div class="card-header">
+        <span class="card-title">Create a Request</span>
 
-@if (isOvertime)
-{
-    <OvertimeForm TemplateId="@TemplateId" />
-}
-else
-{
-    <PtoForm TemplateId="@TemplateId" />
-}
+        <div class="pill-switch" role="tablist" aria-label="Request type">
+            <button id="tab-pto"
+                    class="@(IsPto ? "active" : null)"
+                    role="tab"
+                    aria-selected="@(IsPto)"
+                    aria-controls="panel-pto"
+                    @onclick="() => SetReqType(true)">
+                PTO
+            </button>
+            <button id="tab-ot"
+                    class="@(IsPto ? null : "active")"
+                    role="tab"
+                    aria-selected="@(IsPto ? "false" : "true")"
+                    aria-controls="panel-ot"
+                    @onclick="() => SetReqType(false)">
+                Overtime
+            </button>
+        </div>
+
+        <div style="margin-left:auto" class="inline">
+            <button class="btn secondary" @onclick="Preview">Preview PDF</button>
+            <button class="btn" @onclick="Submit">Submit</button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        @if (IsPto)
+        {
+            <div id="panel-pto" role="tabpanel">
+                <div class="form-grid">
+                    <div class="control">
+                        <label for="emp">Employee <span class="req">*</span></label>
+                        <input id="emp" required placeholder="e.g., Marvin Hauser" class="input" @bind="Emp" />
+                    </div>
+                    <div class="control">
+                        <label for="dept">Department</label>
+                        <select id="dept" class="input" @bind="Dept">
+                            <option>Engineering</option>
+                            <option>IT Operations</option>
+                            <option>HR</option>
+                            <option>Finance</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label for="leaveType">Leave Type</label>
+                        <select id="leaveType" class="input" @bind="LeaveType">
+                            <option value="Paid">Paid</option>
+                            <option value="Unpaid">Unpaid</option>
+                            <option value="Sick">Sick</option>
+                            <option value="Parental">Parental</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label for="approver">Approver</label>
+                        <select id="approver" class="input" @bind="Approver">
+                            <option>Alice Manager</option>
+                            <option>Bob Lead</option>
+                            <option>Carol HR</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label for="start">Start Date <span class="req">*</span></label>
+                        <InputDate id="start" class="input" required
+                                   @bind-Value="StartDate" @bind-Value:event="oninput" />
+                    </div>
+                    <div class="control">
+                        <label for="end">End Date <span class="req">*</span></label>
+                        <InputDate id="end" class="input" required
+                                   @bind-Value="EndDate" @bind-Value:event="oninput" />
+                    </div>
+                    <div class="control">
+                        <label>Workdays (auto)</label>
+                        <input id="workdays" class="input" readonly value="@Workdays" aria-live="polite" />
+                    </div>
+                    <div class="control">
+                        <label for="reason">Reason</label>
+                        <textarea id="reason" rows="3" placeholder="Optional note for your approver" class="input" @bind="Reason"></textarea>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div id="panel-ot" role="tabpanel">
+                <div class="form-grid">
+                    <div class="control">
+                        <label>Employee <span class="req">*</span></label>
+                        <input id="ot-emp" required class="input" placeholder="e.g., Marvin Hauser" @bind="OtEmp" />
+                    </div>
+                    <div class="control">
+                        <label>Date <span class="req">*</span></label>
+                        <InputDate id="ot-date" class="input" required
+                                   @bind-Value="OtDate" @bind-Value:event="oninput" />
+                    </div>
+                    <div class="control">
+                        <label>Hours <span class="req">*</span></label>
+                        <input type="number" id="ot-hours" min="0" step="0.5" class="input" placeholder="e.g., 2.5" @bind="OtHoursStr" @bind:event="oninput" />
+                    </div>
+                    <div class="control">
+                        <label>Rate</label>
+                        <select id="ot-rate" class="input" @bind="OtRate">
+                            <option>Weekday</option>
+                            <option>Weekend</option>
+                            <option>Night</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label>Project</label>
+                        <input id="ot-project" class="input" placeholder="e.g., FormApproval" @bind="OtProject" />
+                    </div>
+                    <div class="control" style="grid-column: span 2">
+                        <label>Justification</label>
+                        <textarea id="ot-note" rows="3" class="input" placeholder="Briefly explain the overtime" @bind="OtNote"></textarea>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    html, body {
+        background: radial-gradient(1400px 600px at 20% -10%, rgba(124,92,255,.15), transparent),
+                    radial-gradient(1200px 700px at 120% 20%, rgba(38,208,124,.12), transparent),
+                    var(--bg) !important;
+        color: var(--text);
+    }
+
+    .page { min-height: calc(100vh - 120px); }
+    .container, .content, main, .page { background: transparent !important; }
+</style>
 
 @code {
-    [Parameter] public Guid TemplateId { get; set; }
+    // Tabs
+    bool IsPto = true;
+    void SetReqType(bool pto) => IsPto = pto;
 
-    private string? templateName;
-    private bool isOvertime;
+    // PTO state
+    string Emp = "Marvin Hauser";
+    string Dept = "Engineering";
+    string LeaveType = "Paid";
+    string Approver = "Alice Manager";
 
-    protected override void OnParametersSet()
+    DateOnly? StartDate { get => _startDate; set { _startDate = value; RecalcWorkdays(); } }
+    DateOnly? EndDate   { get => _endDate;   set { _endDate = value;   RecalcWorkdays(); } }
+    DateOnly? _startDate, _endDate;
+
+    int Workdays;
+    string? Reason;
+
+    // OT state
+    string OtEmp = "Marvin Hauser";
+    DateOnly? OtDate;
+    string? OtHoursStr;
+    string OtRate = "Weekday";
+    string OtProject = "";
+    string? OtNote;
+
+    void RecalcWorkdays()
     {
-        templateName = Repo.GetTemplate(TemplateId)?.Name ?? "New Request";
-        isOvertime = templateName.Contains("overtime", StringComparison.OrdinalIgnoreCase);
+        if (StartDate is null || EndDate is null || EndDate < StartDate)
+        {
+            Workdays = 0;
+            return;
+        }
+
+        var d = StartDate.Value;
+        var end = EndDate.Value;
+        var days = 0;
+        while (d <= end)
+        {
+            if (d.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday) days++;
+            d = d.AddDays(1);
+        }
+        Workdays = days;
+    }
+
+    void Submit()
+    {
+        if (IsPto)
+        {
+            if (string.IsNullOrWhiteSpace(Emp) || StartDate is null || EndDate is null)
+                return; // basic guard; add validation as needed
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(OtEmp) || OtDate is null || string.IsNullOrWhiteSpace(OtHoursStr))
+                return;
+        }
+
+        // Navigate to success page (keeps UI simple here)
+        Nav.NavigateTo("/submitted", replace: true);
+    }
+
+    void Preview()
+    {
+        // Placeholder for future preview generation
     }
 }
