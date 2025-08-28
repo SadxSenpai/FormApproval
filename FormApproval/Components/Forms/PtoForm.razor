@@ -17,112 +17,157 @@
             <h1 class="fa-title">Antrag auf Urlaub / Arbeitsbefreiung</h1>
             <p class="fa-subtitle">Bitte ausfüllen. Felder mit * sind Pflichtfeldern.</p>
 
-            @* Antragstyp *@
             <fieldset>
-                <legend>Antragstyp *</legend>
+                <legend class="fa-section-title">Antragstyp *</legend>
                 <div class="inline" role="radiogroup" aria-label="Antragstyp">
-                    <label class="form-check">
-                        <InputRadioGroup @bind-Value="vm.Antragstyp">
-                            @* Render radios manually for layout consistency *@
-                        </InputRadioGroup>
-                        <input type="radio" name="antragstyp" value="urlaub" checked="@(vm.Antragstyp == "urlaub")" @onchange="@(() => vm.Antragstyp = "urlaub")" />
-                        <span>Antrag auf Urlaub</span>
-                    </label>
-                    <label class="form-check">
-                        <input type="radio" name="antragstyp" value="arbeitsbefreiung" checked="@(vm.Antragstyp == "arbeitsbefreiung")" @onchange="@(() => vm.Antragstyp = "arbeitsbefreiung")" />
-                        <span>Antrag auf Arbeitsbefreiung / Freistellung</span>
-                    </label>
+                    <InputRadioGroup @bind-Value="vm.Antragstyp">
+                        <label class="form-check">
+                            <input type="radio" name="antragstyp" value="urlaub"
+                                   checked="@(vm.Antragstyp == "urlaub")"
+                                   @onchange="@(() => vm.Antragstyp = "urlaub")" />
+                            <span>Antrag auf Urlaub</span>
+                        </label>
+                        <label class="form-check">
+                            <input type="radio" name="antragstyp" value="arbeitsbefreiung"
+                                   checked="@(vm.Antragstyp == "arbeitsbefreiung")"
+                                   @onchange="@(() => vm.Antragstyp = "arbeitsbefreiung")" />
+                            <span>Antrag auf Arbeitsbefreiung / Freistellung</span>
+                        </label>
+                    </InputRadioGroup>
                 </div>
             </fieldset>
 
-            @* Person *@
             <fieldset>
-                <legend>Person</legend>
+                <legend class="fa-section-title">Person</legend>
                 <div class="fa-row cols-2">
                     <div>
                         <label for="name">Name *</label>
-                        <InputText id="name" class="fa-input" @bind-Value="vm.Name" />
+                        <InputText id="name" class="fa-under" @bind-Value="vm.Name" />
                     </div>
                     <div>
                         <label for="vorname">Vorname *</label>
-                        <InputText id="vorname" class="fa-input" @bind-Value="vm.Vorname" />
+                        <InputText id="vorname" class="fa-under" @bind-Value="vm.Vorname" />
                     </div>
                 </div>
-
                 <div class="fa-row cols-2">
                     <div>
                         <label for="abteilung">Abteilung *</label>
-                        <InputText id="abteilung" class="fa-input" @bind-Value="vm.Abteilung" />
+                        <InputText id="abteilung" class="fa-under" @bind-Value="vm.Abteilung" />
                     </div>
                     <div>
                         <label for="geburtsdatum">Geburtsdatum</label>
-                        <InputDate id="geburtsdatum" class="fa-input" @bind-Value="vm.Geburtsdatum" />
+                        <InputDate id="geburtsdatum" class="fa-under" @bind-Value="vm.Geburtsdatum" />
                     </div>
                 </div>
             </fieldset>
 
-            @* Anspruch *@
             <fieldset>
-                <legend>Anspruch</legend>
-                <div class="fa-row cols-3">
-                    <div>
-                        <label for="anspruch-aktuelles-jahr">Urlaubsanspruch (verbleibender Anspruch lfd. Jahr) – Tage</label>
-                        <InputNumber id="anspruch-aktuelles-jahr" class="fa-input" @bind-Value="vm.AnspruchAktuellesJahr" />
-                    </div>
-                    <div>
-                        <label for="anspruch-zusatz">Zusätzlicher Urlaub (Azubi mit GdB ≥ 50) – Tage</label>
-                        <InputNumber id="anspruch-zusatz" class="fa-input" @bind-Value="vm.AnspruchZusatz" />
-                    </div>
-                    <div>
-                        <label for="anspruch-gesamt">Gesamtanspruch – Tage</label>
-                        <InputNumber id="anspruch-gesamt" class="fa-input" @bind-Value="vm.AnspruchGesamt" />
+                <legend class="fa-section-title">Anspruch</legend>
+
+                <div class="row-line">
+                    <div class="muted">Urlaubsanspruch (verbleibender Anspruch lfd. Jahr)</div>
+                    <div class="num-with-suffix">
+                        <InputNumber id="anspruch-aktuelles-jahr" class="fa-under right" @bind-Value="vm.AnspruchAktuellesJahr" />
+                        <span class="suffix">Tage</span>
                     </div>
                 </div>
-                <p class="help">Gesamtanspruch = verbleibender Anspruch lfd. Jahr + zusätzlicher Urlaub.</p>
-            </fieldset>
 
-            @* Urlaubszeiträume *@
-            <fieldset>
-                <legend>Urlaubszeiträume</legend>
+                <div class="row-line">
+                    <div class="muted">Zusätzlicher Urlaub für Auszubildende mit Schwerbehindertenausweis (GdB 50)</div>
+                    <div class="num-with-suffix">
+                        <InputNumber id="anspruch-zusatz" class="fa-under right" @bind-Value="vm.AnspruchZusatz" />
+                        <span class="suffix">Tage</span>
+                    </div>
+                </div>
 
-                <div class="fa-row cols-3">
-                    <div>
-                        <label for="tage1">Tage Urlaub</label>
-                        <InputNumber id="tage1" class="fa-input" @bind-Value="vm.Tage1" />
-                    </div>
-                    <div>
-                        <label for="von1">vom</label>
-                        <InputDate id="von1" class="fa-input" @bind-Value="vm.Von1" />
-                    </div>
-                    <div>
-                        <label for="bis1">bis</label>
-                        <InputDate id="bis1" class="fa-input" @bind-Value="vm.Bis1" />
+                <div class="center-title">Gesamtanspruch</div>
+                <div class="row-line total">
+                    <div class="muted">=</div>
+                    <div class="num-with-suffix">
+                        <InputNumber id="anspruch-gesamt" class="fa-under right big" @bind-Value="vm.AnspruchGesamt" />
+                        <span class="suffix">Tage</span>
                     </div>
                 </div>
             </fieldset>
 
-            @* Summen *@
             <fieldset>
-                <legend>Summen</legend>
-                <div class="fa-row cols-2">
-                    <div>
-                        <label for="tage-gesamt">Tage gesamt</label>
-                        <InputNumber id="tage-gesamt" class="fa-input" @bind-Value="vm.TageGesamt" />
+                <legend class="fa-section-title">Urlaubszeiträume</legend>
+
+                <div class="range-row">
+                    <div class="muted">Tage Urlaub</div>
+                    <InputNumber id="tage1" class="fa-under right" @bind-Value="vm.Tage1" />
+                    <div class="muted small">vom</div>
+                    <InputDate id="von1" class="fa-under" @bind-Value="vm.Von1" />
+                    <div class="muted small">bis</div>
+                    <InputDate id="bis1" class="fa-under" @bind-Value="vm.Bis1" />
+                </div>
+
+                <div class="range-row">
+                    <div class="muted">Tage Urlaub</div>
+                    <InputNumber id="tage2" class="fa-under right" @bind-Value="vm.Tage2" />
+                    <div class="muted small">vom</div>
+                    <InputDate id="von2" class="fa-under" @bind-Value="vm.Von2" />
+                    <div class="muted small">bis</div>
+                    <InputDate id="bis2" class="fa-under" @bind-Value="vm.Bis2" />
+                </div>
+
+                <div class="range-row">
+                    <div class="muted">Tage Urlaub</div>
+                    <InputNumber id="tage3" class="fa-under right" @bind-Value="vm.Tage3" />
+                    <div class="muted small">vom</div>
+                    <InputDate id="von3" class="fa-under" @bind-Value="vm.Von3" />
+                    <div class="muted small">bis</div>
+                    <InputDate id="bis3" class="fa-under" @bind-Value="vm.Bis3" />
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend class="fa-section-title">Summen</legend>
+                <div class="row-line">
+                    <div class="muted">Tage gesamt</div>
+                    <div class="num-with-suffix">
+                        <InputNumber id="tage-gesamt" class="fa-under right" @bind-Value="vm.TageGesamt" />
+                        <span class="suffix">Tage</span>
                     </div>
-                    <div>
-                        <label for="restanspruch">verbleibender Anspruch =</label>
-                        <InputNumber id="restanspruch" class="fa-input" @bind-Value="vm.Restanspruch" />
+                </div>
+                <div class="row-line">
+                    <div class="muted strong">verbleibender Anspruch =</div>
+                    <div class="num-with-suffix">
+                        <InputNumber id="restanspruch" class="fa-under right" @bind-Value="vm.Restanspruch" />
+                        <span class="suffix">Tage</span>
                     </div>
                 </div>
             </fieldset>
 
-            @* Begründung (Reason) *@
             <fieldset>
-                <legend>Begründung</legend>
+                <legend class="fa-section-title">Begründung</legend>
                 <InputTextArea class="fa-textarea" @bind-Value="vm.Reason" />
             </fieldset>
 
-            @* Aktionen *@
+            <fieldset>
+                <legend class="fa-section-title">Unterschriften</legend>
+                <div class="sig-grid">
+                    <div>
+                        <div class="sig-line"></div>
+                        <div class="muted small">Datum</div>
+                    </div>
+                    <div>
+                        <div class="sig-line"></div>
+                        <div class="muted small">Unterschrift Antragsteller/in</div>
+                    </div>
+                </div>
+                <div class="sig-grid">
+                    <div>
+                        <div class="sig-line"></div>
+                        <div class="muted small">Datum</div>
+                    </div>
+                    <div>
+                        <div class="sig-line"></div>
+                        <div class="muted small">Unterschrift zuständige(r) Ausbilder/in</div>
+                    </div>
+                </div>
+            </fieldset>
+
             <div class="actions">
                 <button type="button" class="btn-reset" @onclick="BackToSelection">Zurück zur Auswahl</button>
                 <button type="submit" class="btn-primary-like">Antrag absenden</button>
@@ -139,47 +184,31 @@
 
 @code {
     [Parameter] public Guid TemplateId { get; set; }
-
     private PtoVm vm = new();
     private string? dateError;
 
     protected override void OnParametersSet()
     {
-        // Prefills
         vm.Abteilung ??= Me.Department;
-
-        // Autofill PTO name fields if empty
         if (string.IsNullOrWhiteSpace(vm.Name) && string.IsNullOrWhiteSpace(vm.Vorname))
         {
             var full = Me.Name ?? string.Empty;
             var parts = full.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length >= 2)
-            {
-                vm.Vorname = parts[0];
-                vm.Name = string.Join(' ', parts.Skip(1));
-            }
-            else
-            {
-                vm.Name = full;
-            }
+            if (parts.Length >= 2) { vm.Vorname = parts[0]; vm.Name = string.Join(' ', parts.Skip(1)); }
+            else { vm.Name = full; }
         }
     }
 
     private void HandleSubmit(EditContext context)
     {
         dateError = null;
-        if (!ValidateInputs(out var err))
-        {
-            dateError = err;
-            return;
-        }
+        if (!ValidateInputs(out var err)) { dateError = err; return; }
 
         var inst = ToInstance();
         inst.Status = FormApproval.Domain.FormStatus.Submitted;
         inst.SubmittedAt = DateTime.UtcNow;
         inst.Audit.Add(new() { Actor = Me.Name, Action = "Submit" });
 
-        // Generate PTO PDF and attach URL for review window
         var pdfUrl = Pdfs.SavePtoPdf(inst);
         inst.Answers["PtoPdfUrl"] = pdfUrl;
         inst.Audit.Add(new() { Actor = Me.Name, Action = "Attach", Comment = "PTO PDF attached" });
@@ -188,86 +217,59 @@
         Nav.NavigateTo("/submitted");
     }
 
+    // Add this method to handle invalid form submissions
+    private void HandleInvalidSubmit(EditContext context)
+    {
+        // Optionally, you can set a generic error message or log details here
+        dateError = "Bitte überprüfen Sie die markierten Felder und korrigieren Sie die Eingaben.";
+    }
+
     private static bool ValidateRange(DateTime? from, DateTime? to, out string error)
     {
         error = string.Empty;
-        if (from.HasValue ^ to.HasValue)
-        {
-            error = "Bitte vollständigen Zeitraum (vom/bis) angeben.";
-            return false;
-        }
-        if (from.HasValue && to.HasValue && to.Value.Date < from.Value.Date)
-        {
-            error = "Das 'bis'-Datum darf nicht vor dem 'vom'-Datum liegen.";
-            return false;
-        }
+        if (from.HasValue ^ to.HasValue) { error = "Bitte vollständigen Zeitraum (vom/bis) angeben."; return false; }
+        if (from.HasValue && to.HasValue && to.Value.Date < from.Value.Date) { error = "Das 'bis'-Datum darf nicht vor dem 'vom'-Datum liegen."; return false; }
         return true;
     }
 
     private bool ValidateInputs(out string error)
     {
         error = string.Empty;
-
-        // Required
         if (string.IsNullOrWhiteSpace(vm.Antragstyp)) { error = "Bitte Antragstyp auswählen."; return false; }
         if (string.IsNullOrWhiteSpace(vm.Name)) { error = "Name ist erforderlich."; return false; }
         if (string.IsNullOrWhiteSpace(vm.Vorname)) { error = "Vorname ist erforderlich."; return false; }
         if (string.IsNullOrWhiteSpace(vm.Abteilung)) { error = "Abteilung ist erforderlich."; return false; }
-
-        // Validate entered date ranges if provided
         if (!ValidateRange(vm.Von1, vm.Bis1, out error)) return false;
         if (!ValidateRange(vm.Von2, vm.Bis2, out error)) return false;
         if (!ValidateRange(vm.Von3, vm.Bis3, out error)) return false;
-
         return true;
     }
 
-    private void HandleInvalidSubmit(EditContext editContext)
-    {
-        var messages = string.Join(" | ", editContext.GetValidationMessages());
-        Logger.LogWarning("PTO OnInvalidSubmit (Template={TemplateId}). Errors: {Errors}",
-            TemplateId, string.IsNullOrWhiteSpace(messages) ? "(none)" : messages);
-    }
-
-    private void BackToSelection()
-    {
-        Nav.NavigateTo("/new");
-    }
+    private void BackToSelection() => Nav.NavigateTo("/new");
 
     private FormApproval.Domain.FormInstance ToInstance()
     {
         var answers = new Dictionary<string, string?>();
-
-        // Map German PTO/Unpaid fields
         answers["Antragstyp"] = vm.Antragstyp;
         answers["Nachname"] = vm.Name;
         answers["Vorname"] = vm.Vorname;
         answers["Abteilung"] = vm.Abteilung;
         answers["Geburtsdatum"] = vm.Geburtsdatum?.ToString("yyyy-MM-dd");
-
         answers["AnspruchAktuellesJahr"] = vm.AnspruchAktuellesJahr?.ToString();
         answers["AnspruchZusatz"] = vm.AnspruchZusatz?.ToString();
         answers["AnspruchGesamt"] = vm.AnspruchGesamt?.ToString();
-
         answers["Tage1"] = vm.Tage1?.ToString();
         answers["Von1"] = vm.Von1?.ToString("yyyy-MM-dd");
         answers["Bis1"] = vm.Bis1?.ToString("yyyy-MM-dd");
-
         answers["Tage2"] = vm.Tage2?.ToString();
         answers["Von2"] = vm.Von2?.ToString("yyyy-MM-dd");
         answers["Bis2"] = vm.Bis2?.ToString("yyyy-MM-dd");
-
         answers["Tage3"] = vm.Tage3?.ToString();
         answers["Von3"] = vm.Von3?.ToString("yyyy-MM-dd");
         answers["Bis3"] = vm.Bis3?.ToString("yyyy-MM-dd");
-
         answers["TageGesamt"] = vm.TageGesamt?.ToString();
         answers["Restanspruch"] = vm.Restanspruch?.ToString();
-
-        // PTO Reason
         answers["Reason"] = vm.Reason;
-
-        // Compatibility with dashboard/detail (use first range)
         answers["FromDate"] = vm.Von1?.ToString("yyyy-MM-dd");
         answers["ToDate"] = vm.Bis1?.ToString("yyyy-MM-dd");
 
@@ -286,38 +288,25 @@
 
     public class PtoVm
     {
-        // PTO/Unpaid (German form)
-        public string? Antragstyp { get; set; } // "urlaub" | "arbeitsbefreiung"
-
-        // Person
+        public string? Antragstyp { get; set; }
         public string? Name { get; set; }
         public string? Vorname { get; set; }
         public string? Abteilung { get; set; }
         public DateTime? Geburtsdatum { get; set; }
-
-        // Anspruch
         public int? AnspruchAktuellesJahr { get; set; }
         public int? AnspruchZusatz { get; set; }
         public int? AnspruchGesamt { get; set; }
-
-        // Urlaubszeiträume
         public int? Tage1 { get; set; }
         public DateTime? Von1 { get; set; }
         public DateTime? Bis1 { get; set; }
-
         public int? Tage2 { get; set; }
         public DateTime? Von2 { get; set; }
         public DateTime? Bis2 { get; set; }
-
         public int? Tage3 { get; set; }
         public DateTime? Von3 { get; set; }
         public DateTime? Bis3 { get; set; }
-
-        // Summen
         public int? TageGesamt { get; set; }
         public int? Restanspruch { get; set; }
-
-        // Reason
         public string? Reason { get; set; }
     }
 }

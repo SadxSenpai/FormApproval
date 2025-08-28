@@ -8,7 +8,7 @@
 
         <div class="pill-switch" role="tablist" aria-label="Request type">
             <button id="tab-pto"
-                    class="@(IsPto ? "active" : null)"
+                    class="switch-btn @(IsPto ? "active" : null)"
                     role="tab"
                     aria-selected="@(IsPto)"
                     aria-controls="panel-pto"
@@ -16,7 +16,7 @@
                 PTO
             </button>
             <button id="tab-ot"
-                    class="@(IsPto ? null : "active")"
+                    class="switch-btn @(IsPto ? null : "active")"
                     role="tab"
                     aria-selected="@(IsPto ? "false" : "true")"
                     aria-controls="panel-ot"

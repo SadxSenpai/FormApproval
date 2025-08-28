@@ -248,6 +248,30 @@ a {
         font-weight: 700
     }
 
+/* Secondary button + inputs + validation, consistent with neon theme */
+.btn.secondary{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.14));
+  color:#cbd5e1; border:1px solid var(--line);
+}
+.btn.secondary:hover{ border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+.input, input.input, select.input, textarea.input {
+  background: #0b1220;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 10px 12px; border-radius: 12px;
+}
+.input:focus{ outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.validation-message {
+  color: #ffc0c0; background: rgba(255,107,107,.12);
+  border: 1px solid rgba(255,107,107,.35);
+  padding: 8px 10px; border-radius: 10px;
+  margin-top: 8px;
+}
+
 /* === table === */
 .table {
     display: grid;

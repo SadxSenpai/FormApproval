@@ -8,35 +8,92 @@
 }
 .fa-title { margin: 0 0 4px; font-size: 1.3rem; }
 .fa-subtitle { color: var(--muted,#9aa0a6); margin-bottom: 14px; }
+
+/* Section styling to echo the printed form structure */
+.fa-section-title{
+  text-transform: uppercase; letter-spacing: .4px;
+  color: var(--muted,#9aa0a6);
+  border-top: 1px solid var(--line); padding-top: 8px; margin-top: 6px;
+}
+
 .fa-card fieldset{ border:1px solid rgba(255,255,255,.10); border-radius:10px; padding:16px; margin:18px 0; }
 .fa-card legend{ padding:0 8px; color: var(--muted,#9aa0a6); font-size:.95rem; }
-.fa-card label{ display:block; margin:10px 0 6px; font-weight:600; }
-.fa-input,.fa-textarea,.fa-select{
+
+.fa-card label{ font-weight:700; color:#cbd5e1; margin:6px 0 6px; }
+
+/* Underline-only inputs for the printable look, using neon focus */
+.fa-under{
+  width:100%;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 8px 6px;
+}
+.fa-under:focus{
+  outline: none;
+  border-bottom-color: var(--accent);
+  box-shadow: 0 6px 0 -4px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.fa-under.right{ text-align:right; }
+.fa-under.big{ font-size:1.15rem; font-weight:800; }
+
+/* Rows that mimic the paper form layout */
+.row-line{
+  display:grid; grid-template-columns: 1fr auto; gap: 12px;
+  align-items: center; margin: 10px 0;
+}
+.row-line.total .muted{ font-weight:800; letter-spacing:.2px; }
+
+.num-with-suffix{ display:flex; align-items:center; gap:8px; }
+.suffix{ color: #b6c2ce; font-weight:700; }
+
+.center-title{
+  text-align:center; margin-top: 8px; color:#cbd5e1; font-weight:800;
+}
+
+/* Three-line date ranges (Tage, von, bis) */
+.range-row{
+  display:grid; gap:10px; align-items:center; margin:10px 0;
+  grid-template-columns: auto 100px auto minmax(140px,1fr) auto minmax(140px,1fr);
+}
+.muted{ color: var(--muted,#9aa0a6); }
+.muted.small{ font-size:.9rem; }
+
+/* Signature lines */
+.sig-grid{
+  display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin: 10px 0 4px;
+}
+.sig-line{
+  height: 24px; border-bottom: 2px solid rgba(255,255,255,.22);
+  border-radius: 0; background: transparent;
+}
+
+/* Existing form controls retained for textarea and fallback */
+.fa-textarea{
   width:100%; padding:10px 12px;
-  background: linear-gradient(180deg,#12161c,#101419 60%,#0f1216);
-  border:1px solid rgba(255,255,255,.10); border-radius:10px; color: var(--text,#e6e9ef);
+  background:#0b1220; border:1px solid var(--line); color:var(--text);
+  min-height:110px; resize:vertical; border-radius:10px;
 }
-.fa-input:focus,.fa-textarea:focus,.fa-select:focus{
-  outline:none; border-color:var(--ring,#39ff14);
-  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent), inset 0 0 24px rgba(57,255,20,.05);
-}
-.fa-textarea{ min-height:110px; resize:vertical; }
+
 .fa-row{ display:grid; grid-template-columns:1fr; gap:16px; }
 @media (min-width: 720px){
   .fa-row.cols-2{ grid-template-columns: repeat(2,1fr); }
   .fa-row.cols-3{ grid-template-columns: repeat(3,1fr); }
 }
+
 .inline{ display:flex; gap:18px; flex-wrap:wrap; align-items:center; }
 .help{ color: var(--muted,#9aa0a6); font-size:.9rem; margin-top:6px; }
 .actions{ display:flex; gap:10px; margin-top:14px; }
-.btn-reset{
-  appearance:none; border:1px solid rgba(255,255,255,.12);
-  background: linear-gradient(180deg,#14161b,#0c0d10 90%); color:#e6e9ef;
-  padding:10px 14px; border-radius:12px; cursor:pointer;
+.actions .btn-reset{
+  border:1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.14));
+  color:#cbd5e1; padding:10px 14px; border-radius:12px; cursor:pointer;
 }
-.btn-primary-like{
-  background: linear-gradient(180deg, color-mix(in oklab, var(--ring,#39ff14) 14%, #0f1216 86%), #0c0d10 90%);
-  color:#fff; border:1px solid color-mix(in oklab, var(--ring) 70%, #000 30%);
-  padding:10px 14px; border-radius:12px; cursor:pointer;
-  box-shadow:0 0 0 1px rgba(255,255,255,.06),0 0 24px color-mix(in oklab, var(--ring) 25%, transparent), inset 0 -10px 30px rgba(255,255,255,.05);
+.actions .btn-primary-like{
+  background: linear-gradient(180deg,var(--accent),color-mix(in srgb, var(--accent) 70%, #000 30%));
+  color:#111827; border:1px solid color-mix(in srgb, var(--accent) 70%, #000 30%);
+  padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700;
+  box-shadow:0 0 24px color-mix(in srgb, var(--accent) 20%, transparent);
 }
