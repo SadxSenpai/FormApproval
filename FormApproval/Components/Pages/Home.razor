@@ -48,20 +48,35 @@
     </div>
 
     <div class="stack">
+        <!-- Remaining workdays (radial) -->
         <div class="card stat">
-            <div class="stat-title">PTO Balance</div>
-            <div class="stat-row">
-                <div class="big">18.5 <span>days</span></div>
-                <div class="ring"><div class="ring-fill" style="--v:72%"></div></div>
+            <div class="stat-title">Remaining Workdays</div>
+            <div class="stat-row" style="display:flex; align-items:center; gap:14px;">
+                <div class="big">17 <span>days</span></div>
+                <!-- 17/30 => 56.7% -->
+                <div class="ring"><div class="ring-fill" style="--v:56.7%"></div></div>
             </div>
+            <div style="color:var(--muted)">57% of 30 days</div>
         </div>
 
+        <!-- Overtime (line graph) -->
         <div class="card stat plum">
             <div class="stat-title">Overtime This Month</div>
-            <div class="stat-row">
-                <div class="big">12.0 <span>h</span></div>
-                <div class="bars"><i></i><i></i><i class="hi"></i></div>
-            </div>
+            <div class="big">12.0 <span>h</span></div>
+            <div style="color:var(--muted); margin-bottom:6px;">30% of 40 h</div>
+            <svg width="100%" height="70" viewBox="0 0 220 60" preserveAspectRatio="none" role="img" aria-label="Overtime hours trend">
+                <desc>Line trend of overtime accumulation</desc>
+                <!-- baseline -->
+                <line x1="0" y1="50" x2="220" y2="50" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+                <!-- trend line -->
+                <polyline points="0,50 35,47 70,42 105,45 140,30 175,22 210,26"
+                          fill="none" stroke="var(--pink)" stroke-width="2"/>
+                <!-- fill under line -->
+                <polyline points="0,50 35,47 70,42 105,45 140,30 175,22 210,26 210,60 0,60"
+                          fill="rgba(255,79,216,.12)" stroke="none"/>
+                <!-- current point -->
+                <circle cx="210" cy="26" r="3" fill="var(--pink)"/>
+            </svg>
         </div>
 
         <div class="card stat outline">
@@ -82,14 +97,6 @@
         background: radial-gradient(1400px 600px at 20% -10%, rgba(124,92,255,.15), transparent), radial-gradient(1200px 700px at 120% 20%, rgba(38,208,124,.12), transparent), var(--bg) !important;
         color: var(--text);
     }
-
-    /* give the content area some height so you can see the gradient even on empty pages */
-    .page {
-        min-height: calc(100vh - 120px);
-    }
-
-    /* just in case any container brings a white bg */
-    .container, .content, main, .page {
-        background: transparent !important;
-    }
+    .page { min-height: calc(100vh - 120px); }
+    .container, .content, main, .page { background: transparent !important; }
 </style>
