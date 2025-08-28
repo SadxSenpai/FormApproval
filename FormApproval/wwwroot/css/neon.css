@@ -25,6 +25,17 @@ html {
     font-family: Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
 }
 
+/* --- force dark bg and visible content --- */
+html, body {
+  background:
+    radial-gradient(1400px 600px at 20% -10%, rgba(124,92,255,.15), transparent),
+    radial-gradient(1200px 700px at 120% 20%, rgba(38,208,124,.12), transparent),
+    var(--bg) !important;
+  color: var(--text) !important;
+}
+.page { min-height: calc(100vh - 120px); }
+.container, .content, main, .page { background: transparent !important; }
+
 * {
     box-sizing: border-box
 }
@@ -389,4 +400,16 @@ a {
     border-radius: 6px;
     background: #0b1220;
     margin: 0 2px
+}
+html, body {
+    background: radial-gradient(1400px 600px at 20% -10%, rgba(124,92,255,.15), transparent), radial-gradient(1200px 700px at 120% 20%, rgba(38,208,124,.12), transparent), var(--bg) !important;
+    color: var(--text) !important;
+}
+
+.page {
+    min-height: calc(100vh - 120px);
+}
+
+.container, .content, main, .page {
+    background: transparent !important;
 }

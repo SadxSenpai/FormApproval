@@ -1,44 +1,39 @@
 ﻿@inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
+@inject NavigationManager Nav
 
 <HeadContent>
-  <link rel="stylesheet" href="css/neon.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    .chip.disabled { opacity:.55; cursor:not-allowed; pointer-events:none }
-  </style>
+    <link rel="stylesheet" href="css/neon.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </HeadContent>
 
 <div class="app-root">
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo-dot"></div>
-      <div>
-        <div class="brand-title">FormApproval</div>
-        <div class="brand-sub">Blazor-style PTO &amp; Overtime</div>
-      </div>
-    </div>
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo-dot"></div>
+            <div>
+                <div class="brand-title">FormApproval</div>
+                <div class="brand-sub">Blazor-style PTO &amp; Overtime</div>
+            </div>
+        </div>
 
-    <nav class="topnav">
-      <a href="/" class="chip @(IsHome() ? "active" : null)">Dashboard</a>
-      <a href="/new" class="chip @(Is("/new") ? "active" : null)">New Request</a>
-      <a class="chip disabled" role="link" aria-disabled="true" tabindex="-1">Approvals</a>
-      <a class="chip disabled" role="link" aria-disabled="true" tabindex="-1">Admin</a>
-    </nav>
+        <nav class="topnav">
+            <a href="/" class="chip @(IsActive("/"))">Dashboard</a>
+            <a href="/new" class="chip @(IsActive("/new"))">New Request</a>
+            <a href="/approvals" class="chip @(IsActive("/approvals"))">Approvals</a>
+            <a href="/admin" class="chip @(IsActive("/admin"))">Admin</a>
+        </nav>
 
-    <div class="actions">
-      <div class="accent-group">
-        <span class="status-dot on"></span>
-      </div>
-    </div>
-  </header>
+        <div class="actions">
+            <span class="status-dot on" title="Connected"></span>
+        </div>
+    </header>
 
-  <main class="page">
-    @Body
-  </main>
+    <main class="page">
+        @Body   @* <-- if this is missing, you’ll see a blank page *@
+    </main>
 </div>
 
 @code {
-  bool Is(string path) => NavigationManager.Uri.Contains(path, StringComparison.OrdinalIgnoreCase);
-  bool IsHome() => string.IsNullOrEmpty(NavigationManager.ToBaseRelativePath(NavigationManager.Uri));
+    string IsActive(string path) =>
+        Nav.Uri.EndsWith(path, StringComparison.OrdinalIgnoreCase) ? "active" : "";
 }
